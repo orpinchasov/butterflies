@@ -101,3 +101,5 @@ ENV/
 
 # Matlab files
 *.asv
+*.fig
+*.mat
