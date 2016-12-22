@@ -2,7 +2,7 @@ function [ full_neuron_firing_per_bin, angles ] = create_spike_count_and_angles_
 %CREATE_SPIKE_COUNT_AND_ANGLES_VECTOR Summary of this function goes here
 %   Detailed explanation goes here
 
-    global BEHAVIORAL_SAMPLE_RATE NEURONAL_SAMPLE_RATE BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN;
+    global BEHAVIORAL_SAMPLE_RATE NEURONAL_SAMPLE_RATE BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN SAMPLE_LIMIT;
     
     number_of_neurons = max(G);
     
@@ -44,6 +44,12 @@ function [ full_neuron_firing_per_bin, angles ] = create_spike_count_and_angles_
         angle_per_temporal_bin = mod(angle(sum(angles_valid_mask_mat .* exp(1i * angles_mat), 2)), 2 * pi);
         angle_per_temporal_bin(abs(sum(angles_valid_mask_mat .* exp(1i * angles_mat), 2)) == 0) = nan;
         angles = [angles; angle_per_temporal_bin];
-    end    
+    end
+    
+    % Truncate the data to avoid exceeding maximum array size
+    if size(full_neuron_firing_per_bin, 1) > SAMPLE_LIMIT
+        full_neuron_firing_per_bin = full_neuron_firing_per_bin(1:SAMPLE_LIMIT, :);
+        angles = angles(1:SAMPLE_LIMIT);
+    end
 end
 

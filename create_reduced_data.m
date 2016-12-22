@@ -1,8 +1,8 @@
-function [ reduced_data ] = create_reduced_data( data, p_neightbors_vec, number_of_reduced_dimensions_vec )
+function [ reduced_data ] = create_reduced_data( neuron_firing, p_neightbors_vec, number_of_reduced_dimensions_vec )
 %CREATE_REDUCED_DATA Summary of this function goes here
-%   Detailed explanation goes here
+%   Detailed explanation goes here    
 
-    reduced_data = data;
+    reduced_data = neuron_firing;
     
     for iteration_index = 1:length(number_of_reduced_dimensions_vec)
         reduced_data = reduce_data_by_laplacian_eigenmap(reduced_data, ...
