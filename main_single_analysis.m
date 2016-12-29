@@ -1,28 +1,21 @@
 % Import project-wide constants
 constants
 
-MOUSE_BY_DAY_NAME = 'Mouse12-120806';
-%MOUSE_BY_DAY_NAME = 'Mouse28-140312';
+MOUSE_BY_DAY_NAME = 'Mouse28-140313';
 
-BEHAVIORAL_STATE = 'wake'; % 'wake', 'rem', 'sws'
-% TODO: Notice that if we choose not to include these angles we get
-% incorrect results by the decoder because of some delay in the decoded
-% angles compared to the actual angle.
-INCLUDE_UNIDENTIFIED_ANGLES = true;
+BEHAVIORAL_STATE = 'rem'; % 'wake', 'rem', 'sws'
 
-SOFTWARE_PATH = 'E:\or\software\';
-DATA_PATH = 'E:\or\data\';
-
-addpath([SOFTWARE_PATH 'crcns-hc2-scripts']);
-addpath([SOFTWARE_PATH 'custom_scripts']);
+BRAIN_REGION = 1; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal
 
 %% Load data
 % TODO: The following function loads a subset of the recorded neurons.
 % Open the function to see the current neurons being loaded.
-[T, G, Ang, wake, rem, sws] = load_mouse_data(DATA_PATH, MOUSE_BY_DAY_NAME);
+[T, G, Ang, wake, rem, sws] = load_mouse_data(DATA_PATH, MOUSE_BY_DAY_NAME, mouse_by_electrode_brain_region, BRAIN_REGION);
 
-%%
-% Analyse data according to behavioral state
+%% Alternatively, load data from all brain regions
+[T, G, Ang, wake, rem, sws] = load_mouse_data_all(DATA_PATH, MOUSE_BY_DAY_NAME);
+
+%% Analyse data according to behavioral state
 switch BEHAVIORAL_STATE
     case 'wake'
         period = wake;
@@ -39,10 +32,13 @@ end
 filtered_neuron_firing = filter_neuron_firing(full_neuron_firing_per_bin);
 
 %% Reduce data
-P_NEIGHBORS_VEC = [0.075 / 30 0.075];
+% Original P values
+P_NEIGHBORS_VEC = [0.025 / 30 0.025];
 NUMBER_OF_REDUCED_DIMENSIONS_VEC = [10 10];
     
-reduced_data = create_reduced_data(filtered_neuron_firing, P_NEIGHBORS_VEC, NUMBER_OF_REDUCED_DIMENSIONS_VEC);
+full_reduced_data = create_reduced_data(filtered_neuron_firing, P_NEIGHBORS_VEC, NUMBER_OF_REDUCED_DIMENSIONS_VEC);
+% Take the final results and continue processing on them
+reduced_data = full_reduced_data{length(P_NEIGHBORS_VEC) + 1};
 
 %%
 spike_rate_mat_neuron_by_angle = calculate_spike_rate_neuron_by_angle(T, G, Ang, wake);
@@ -109,7 +105,7 @@ scatter3(reduced_data(:, 2), reduced_data(:, 3), reduced_data(:, 4), 20, cmap2(i
 figure;
 scatter3(reduced_data(:, 5), reduced_data(:, 6), reduced_data(:, 7), 20, cmap2(index_of_visualization_angle_per_temporal_bin, :), 'fill');
 
-%%
+%% Calculate angular velocity
 NUMBER_OF_ANGULAR_VELOCITY_BINS = 16;
 MAX_ANGULAR_VELOCITY = 0.25;
 MIN_ANGULAR_VELOCITY = -0.25;
@@ -119,11 +115,16 @@ index_of_visualization_angular_velocity_per_temporal_bin(index_of_visualization_
 index_of_visualization_angular_velocity_per_temporal_bin(index_of_visualization_angular_velocity_per_temporal_bin < 1) = 1;
 index_of_visualization_angular_velocity_per_temporal_bin(isnan(index_of_visualization_angular_velocity_per_temporal_bin)) = NUMBER_OF_ANGULAR_VELOCITY_BINS + 1;
 
-cmap_angular_velocity = jet(NUMBER_OF_ANGULAR_VELOCITY_BINS);
+%% Run the following before:
+% [spike_rate_mat_neuron_by_angular_velocity index_of_visualization_angular_velocity_per_temporal_bin] = calculate_spike_rate_neuron_by_angular_velocity(full_neuron_firing_per_bin, angle_per_temporal_bin);
+cmap_angular_velocity = jet(NUMBER_OF_ANGULAR_VELOCITY_BINS / 2);
 cmap_angular_velocity = [cmap_angular_velocity; [0 0 0]];
 
+index_of_visualization_abs_angular_velocity_per_temporal_bin = ceil(abs(index_of_visualization_angular_velocity_per_temporal_bin - (NUMBER_OF_ANGULAR_VELOCITY_BINS / 2 + 0.5)));
+index_of_visualization_abs_angular_velocity_per_temporal_bin(index_of_visualization_angular_velocity_per_temporal_bin == NUMBER_OF_ANGULAR_VELOCITY_BINS + 1) = NUMBER_OF_ANGULAR_VELOCITY_BINS / 2 + 1;
+
 figure;
-scatter3(reduced_data(:, 2), reduced_data(:, 3), reduced_data(:, 4), 20, cmap_angular_velocity([index_of_visualization_angular_velocity_per_temporal_bin 1], :), 'fill');
+scatter3(reduced_data(:, 2), reduced_data(:, 3), reduced_data(:, 4), 20, cmap_angular_velocity(index_of_visualization_abs_angular_velocity_per_temporal_bin, :), 'fill');
 
 %% Clustering tests
 NUMBER_OF_CLUSTERS = 8;
@@ -311,3 +312,20 @@ hold on;
 plot(angle_per_temporal_bin, 'k.');
 plot(estimated_angle_by_clustering, 'r.');
 %scatter(angle_per_temporal_bin, estimated_angle_by_clustering, '.');
+
+%% PCA over firing rate
+[coeff,score,latent,tsquared,explained,mu] = pca(ordered_neuron_firing_rate);
+figure; scatter(score(:, 1), score(:, 2), 40, cmap_clusters, 'fill'); axis equal;
+
+%% PCA over transition probability
+ordered_transition_mat = transition_mat(chosen_shuffle, chosen_shuffle);
+symmetric_ordered_transition_mat = 0.5 * (ordered_transition_mat + ordered_transition_mat');
+
+%% Plot averaged cluster data (in order to compare with the transition graph)
+average_cluster_point = ones(NUMBER_OF_CLUSTERS, 2);
+for cluster_index = 1:NUMBER_OF_CLUSTERS
+    cluster_indices = find(clustering_results == chosen_shuffle(cluster_index));
+    average_cluster_point(cluster_index, :) = mean(reduced_data(cluster_indices, 2:3));
+end
+
+figure; scatter(average_cluster_point(:, 1), average_cluster_point(:, 2), 40, cmap_clusters, 'fill');
