@@ -1,8 +1,16 @@
-function [T, G, Ang, wake, rem, sws] = load_mouse_data(data_path, mouse_name)
+function [T, G, Ang, wake, rem, sws] = load_mouse_data(data_path, mouse_name, electrode_mapping, brain_region)
 %LOAD_MOUSE_DATA Summary of this function goes here
 %   Detailed explanation goes here
 
-    [T, G, ~, ~] = LoadCluRes([data_path mouse_name '\' mouse_name]);
+    strings = strsplit(mouse_name, '-');
+    [name, id] = deal(strings{:});
+    
+    mouse = electrode_mapping(name);
+    mouse_electrode_mapping = mouse(id);
+    
+    electrode_indices = find(mouse_electrode_mapping == brain_region);
+
+    [T, G, ~, ~] = LoadCluRes([data_path mouse_name '\' mouse_name], electrode_indices);
 
     Ang = LoadAng([data_path 'AngFiles\' mouse_name '.ang']);
 
