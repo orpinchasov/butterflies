@@ -3,7 +3,8 @@ global TEMPORAL_TIME_BIN;
 % Import project-wide constants
 constants
 
-MOUSE_BY_DAY_NAME = 'Mouse12-120806';
+MOUSE_BY_DAY_NAME = 'Mouse28-140313';
+BRAIN_REGION = 5;
 BEHAVIORAL_STATE = 'wake'; % 'wake', 'rem', 'sws'
 
 DATA_PATH = 'E:\or\data\';
@@ -11,15 +12,9 @@ DATA_PATH = 'E:\or\data\';
 INCLUDE_UNIDENTIFIED_ANGLES = true;
 
 %% Load analysis results
-[reduced_data, angle_per_temporal_bin, spike_rate_mat_neuron_by_angle, estimated_head_direction_angle_per_sample_index] = load_analysis_results(DATA_PATH, MOUSE_BY_DAY_NAME, BEHAVIORAL_STATE);
-
-%% Handle missing behavioral entries
-if INCLUDE_UNIDENTIFIED_ANGLES == false && ...
-    strcmp(BEHAVIORAL_STATE, 'wake')
-    reduced_data = reduced_data(~isnan(angle_per_temporal_bin), :);
-    angle_per_temporal_bin = angle_per_temporal_bin(~isnan(angle_per_temporal_bin));
-    estimated_head_direction_angle_per_sample_index = estimated_head_direction_angle_per_sample_index(~isnan(angle_per_temporal_bin));
-end
+[full_reduced_data, full_neuron_firing_per_bin, angle_per_temporal_bin, spike_rate_mat_neuron_by_angle, estimated_head_direction_angle_per_sample_index] = load_analysis_results(DATA_PATH, MOUSE_BY_DAY_NAME, BRAIN_REGION, BEHAVIORAL_STATE);
+% TODO: Hard coded 3
+reduced_data = full_reduced_data{3};
 
 %% Working
 % Polar plot
@@ -43,6 +38,8 @@ if strcmp(BEHAVIORAL_STATE, 'wake')
     xlim([0 2 * pi]);
     ylim([0 2 * pi]);
 end
+
+%%
 
 % Plot the unlabeled reduced data
 figure;
@@ -70,4 +67,13 @@ index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle
 figure;
 scatter3(reduced_data(:, 2), reduced_data(:, 3), reduced_data(:, 4), 20, cmap2(index_of_visualization_angle_per_temporal_bin,:), 'fill')
 
-%%
+%% Plot colorless and with specific neuron
+NEURON_INDEX = 20;
+
+neuron_activity_indices = full_neuron_firing_per_bin(:, NEURON_INDEX) > 4;
+
+% The fourth argument is the dot size
+figure;
+hold on;
+plot(reduced_data(:, 2), reduced_data(:, 3), 'k.');
+plot(reduced_data(neuron_activity_indices, 2), reduced_data(neuron_activity_indices, 3), 'r.');
