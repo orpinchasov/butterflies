@@ -12,7 +12,7 @@ function save_analysis_results( data_path, mouse_by_day_name, brain_region, beha
             brain_region_str = 'all';
     end
 
-    output_folder_name = [data_path '\' mouse_by_day_name '\output\' brain_region_str '\' behavioral_state];
+    output_folder_name = [data_path '\' mouse_by_day_name '\output_25000_samples\' brain_region_str '\' behavioral_state];
     mkdir(output_folder_name);
 
     save([output_folder_name '\full_neuron_firing_per_bin'], 'full_neuron_firing_per_bin');
