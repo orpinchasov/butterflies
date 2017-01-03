@@ -3,7 +3,7 @@ constants
 
 MOUSE_BY_DAY_NAME = 'Mouse28-140313';
 
-BEHAVIORAL_STATE = 'rem'; % 'wake', 'rem', 'sws'
+BEHAVIORAL_STATE = 'wake'; % 'wake', 'rem', 'sws'
 
 BRAIN_REGION = 1; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal
 
@@ -57,7 +57,7 @@ end
 %% Working
 % Polar plot
 head_direction_neurons_indices = find_head_direction_neurons(spike_rate_mat_neuron_by_angle);
-plot_polar_tuning_curve(spike_rate_mat_neuron_by_angle, head_direction_neurons_indices);
+plot_polar_tuning_curve(spike_rate_mat_neuron_by_angle, head_direction_neurons_indices, Map, mouse_by_electrode_brain_region);
 
 if strcmp(BEHAVIORAL_STATE, 'wake')
     % Decoder visualization
@@ -136,6 +136,45 @@ clustering_results = k_means_clustering(reduced_data, NUMBER_OF_CLUSTERS, 1);
 figure;
 scatter3(reduced_data(:, 2), reduced_data(:, 3), reduced_data(:, 4), 20, cmap_clustering(clustering_results, :), 'fill');
 
+%% Spectral clustering tests (run either this or the previous part)
+NUMBER_OF_CLUSTERS = 8;
+NUMBER_OF_SAMPLES = 20000;
+
+cmap_clustering = jet(NUMBER_OF_CLUSTERS);
+
+%spectral_clustering_data = reduced_data(1:NUMBER_OF_SAMPLES, 2:4);
+%spectral_clustering_distances = squareform(pdist(spectral_clustering_data));
+%similarity_spectral_clustering_distances = exp(-spectral_clustering_distances ./ repmat(std(spectral_clustering_distances), [NUMBER_OF_SAMPLES 1]));
+
+M = reduced_data(1:NUMBER_OF_SAMPLES, 2:3);
+W = squareform(pdist(M));
+sigma = 0.05;
+similarity_spectral_clustering_distances = exp(-W.^2 ./ (2*sigma^2));
+
+%figure;
+%imagesc(similarity_spectral_clustering_distances);
+%colorbar;
+%%
+
+raw_clustering_results = SpectralClustering(similarity_spectral_clustering_distances, NUMBER_OF_CLUSTERS, 3);
+
+clustering_results = log2(bi2de(raw_clustering_results)) + 1;
+
+figure;
+%scatter3(reduced_data(1:NUMBER_OF_SAMPLES, 2), reduced_data(1:NUMBER_OF_SAMPLES, 3), reduced_data(1:NUMBER_OF_SAMPLES, 4), 20, cmap_clustering(mapped_clustering_results, :), 'fill');
+scatter(reduced_data(1:NUMBER_OF_SAMPLES, 2), reduced_data(1:NUMBER_OF_SAMPLES, 3), 20, cmap_clustering(clustering_results, :), 'fill');
+
+%% Load clustering results
+% For example, from the file
+% "E:\or\data\Mouse28-140313\output\all\wake\spectral_clustered_2d_data_m28_140313_wake_all.mat"
+LABELS_FILENAME = 'E:\or\data\Mouse28-140313\output\all\wake\spectral_clustered_2d_data_m28_140313_wake_all.mat';
+
+labels = load('E:\or\data\Mouse28-140313\output\all\wake\spectral_clustered_2d_data_m28_140313_wake_all.mat');
+clustering_results = labels.labels' + 1;
+
+%% Test clustering using silhouette
+eva = evalclusters(reduced_data, 'kmeans', 'Silhouette', 'KList', 1:8);
+
 %% Plot clustering histograms versus actual head direction
 figure;
 for figure_index = 1:NUMBER_OF_CLUSTERS
@@ -152,6 +191,9 @@ transition_index_mat = reshape(transition_index_count, [NUMBER_OF_CLUSTERS NUMBE
 transition_mat = transition_index_mat ./ repmat(sum(transition_index_mat, 2), [1 NUMBER_OF_CLUSTERS]);
 
 figure; imagesc(transition_mat); colormap jet;
+
+%% Run ordering code to get correct shuffling of the matrix
+Ordering_cyclical_Ver000
 
 %% Plot for each neuron the firing rate per cluster in sample
 
@@ -265,7 +307,7 @@ for neuron_index = 1:number_of_head_direction_neurons
 end
 
 %% Plot scattering of clustering tuning curve versus actual tuning curve
-ACTUAL_VERSUS_CLUSTERING_SHIFT = 0.5 * pi;
+ACTUAL_VERSUS_CLUSTERING_SHIFT = -0.5 * pi;
 
 neuron_actual_preferred_angle = zeros(NUMBER_OF_ANGLE_BINS, 1);
 neuron_clustering_preferred_angle = zeros(NUMBER_OF_CLUSTERS, 1);
@@ -296,6 +338,9 @@ scatter(neuron_actual_preferred_angle(head_direction_neurons_indices), neuron_cl
 xlim([-pi pi]);
 ylim([-pi pi]);
 
+%%
+SmoothingEstimatedHeadDirection_Ver0
+
 %% Trajectory of actual head movement versus clustered movement
 ordered_clustering_results = zeros(size(clustering_results));
 
@@ -310,7 +355,8 @@ figure;
 hold on;
 
 plot(angle_per_temporal_bin, 'k.');
-plot(estimated_angle_by_clustering, 'r.');
+%plot(estimated_angle_by_clustering, 'r.');
+plot(2 * pi - smoothed_estimated_angle_by_clustering, 'r.');
 %scatter(angle_per_temporal_bin, estimated_angle_by_clustering, '.');
 
 %% PCA over firing rate
@@ -322,6 +368,8 @@ ordered_transition_mat = transition_mat(chosen_shuffle, chosen_shuffle);
 symmetric_ordered_transition_mat = 0.5 * (ordered_transition_mat + ordered_transition_mat');
 
 %% Plot averaged cluster data (in order to compare with the transition graph)
+cmap_clusters = hsv(NUMBER_OF_CLUSTERS);
+
 average_cluster_point = ones(NUMBER_OF_CLUSTERS, 2);
 for cluster_index = 1:NUMBER_OF_CLUSTERS
     cluster_indices = find(clustering_results == chosen_shuffle(cluster_index));
