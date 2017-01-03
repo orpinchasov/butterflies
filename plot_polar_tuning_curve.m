@@ -1,5 +1,11 @@
-function [ spike_rate_mat_neuron_by_angle ] = plot_polar_tuning_curve( spike_rate_mat_neuron_by_angle, valid_head_direction_neurons )
+function [ spike_rate_mat_neuron_by_angle ] = plot_polar_tuning_curve( spike_rate_mat_neuron_by_angle, valid_head_direction_neurons, varargin )
     global CENTER_OF_ANGLE_BINS;
+    
+    % TODO: A little bit hard coded
+    if length(varargin) == 2
+        Map = varargin{1};
+        electrode_brain_region  = varargin{2};
+    end
     
     number_of_neurons = size(spike_rate_mat_neuron_by_angle, 1);
     
@@ -12,6 +18,17 @@ function [ spike_rate_mat_neuron_by_angle ] = plot_polar_tuning_curve( spike_rat
     
     figure;
     for neuron_index = 1:number_of_neurons
+        if length(varargin) == 2
+            electrode_index = Map(neuron_index, 2);
+            brain_region_index = electrode_brain_region(electrode_index);
+        else
+            brain_region_index = 1;
+        end
+        
+        % Choose color according to brain region
+        colors = {'k', 'b', 'r', 'g'};
+        line_color = colors{brain_region_index};
+        
         current_neuron_spike_rate_by_angle = spike_rate_mat_neuron_by_angle(neuron_index, :);
         
         subplot(number_of_rows, number_of_columns, neuron_index);
@@ -28,9 +45,9 @@ function [ spike_rate_mat_neuron_by_angle ] = plot_polar_tuning_curve( spike_rat
         r_max = max(current_neuron_spike_rate_by_angle);
         
         if ismember(neuron_index, valid_head_direction_neurons)
-            polarplot([1 1] * angle_of_current_cell, [0 r_max], 'r', 'LineWidth', 2);
+            polarplot([1 1] * angle_of_current_cell, [0 r_max], line_color, 'LineWidth', 3);
         else
-            polarplot([1 1] * angle_of_current_cell, [0 r_max], 'k');
+            polarplot([1 1] * angle_of_current_cell, [0 r_max], line_color);
         end
         
         rlim([0 1.2 * r_max]);        
