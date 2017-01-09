@@ -4,9 +4,12 @@ function [ clustering_results ] = k_means_clustering( reduced_data, number_of_cl
 
     clustering_results = zeros(size(reduced_data, 1), number_of_iterations);
 
+    % Set the random generator to get stable results
+    rng(0);
+    
     for iteration_index = 1:number_of_iterations
         % TODO: We choose some dimensions which are 'pretty'
-        clustering_results(:, iteration_index) = kmeans(reduced_data(:, 2:7), number_of_clusters);
+        clustering_results(:, iteration_index) = kmeans(reduced_data, number_of_clusters);
     end
     
     

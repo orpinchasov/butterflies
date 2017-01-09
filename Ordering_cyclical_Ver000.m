@@ -31,8 +31,13 @@ toc
 diagonals_values_per_shuffle=transition_mat(ind_mat);
 [max_value, max_ind]=max(sum(diagonals_values_per_shuffle,2));
 chosen_shuffle=shuffle_mat(max_ind,:);
-figure
-subplot(1,2,1)
-imagesc(transition_mat)
-subplot(1,2,2)
-imagesc(transition_mat(chosen_shuffle,chosen_shuffle))
+figure;
+colormap('jet');
+imagesc(transition_mat);
+
+figure; 
+colormap('jet');
+imagesc(transition_mat(chosen_shuffle, chosen_shuffle));
+axis square;
+caxis([0 1]);
+colorbar;

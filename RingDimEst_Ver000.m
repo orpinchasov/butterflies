@@ -1,6 +1,6 @@
-clear all
-close all
-load('D:\Alon\Work\Butterflies\Ver0\fig3\HeadDirection\RingEstimation\output_Mouse28-140313\output\all\wake\full_reduced_data.mat')
+%clear all
+%close all
+%load('D:\Alon\Work\Butterflies\Ver0\fig3\HeadDirection\RingEstimation\output_Mouse28-140313\output\all\wake\full_reduced_data.mat')
 start_value=0.004;
 end_value=0.023;
 slope_one_color=[1 0.2 0.8];

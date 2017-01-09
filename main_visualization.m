@@ -1,11 +1,17 @@
 global TEMPORAL_TIME_BIN;
 
+cd('C:\Users\orp\Downloads\matlab_examples');
+load_javaplex;
+cd('e:\or\code\custom_scripts');
+
 % Import project-wide constants
 constants
 
+% Two of our best mice
+%MOUSE_BY_DAY_NAME = 'Mouse12-120806';
 MOUSE_BY_DAY_NAME = 'Mouse28-140313';
 BRAIN_REGION = 5;
-BEHAVIORAL_STATE = 'wake'; % 'wake', 'rem', 'sws'
+BEHAVIORAL_STATE = 'rem'; % 'wake', 'rem', 'sws'
 
 DATA_PATH = 'E:\or\data\';
 
@@ -65,10 +71,12 @@ index_of_visualization_angle_per_temporal_bin(index_of_visualization_angle_per_t
 index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle_per_temporal_bin)) = NUMBER_OF_ANGLE_BINS + 1;
 % The fourth argument is the dot size
 figure;
-scatter3(reduced_data(:, 2), reduced_data(:, 3), reduced_data(:, 4), 20, cmap2(index_of_visualization_angle_per_temporal_bin,:), 'fill')
+%scatter3(reduced_data(:, 2), reduced_data(:, 3), reduced_data(:, 4), 20, cmap2(index_of_visualization_angle_per_temporal_bin,:), 'fill');
+%cmap2(index_of_visualization_angle_per_temporal_bin,:), 'fill');
+scatter(reduced_data(:, 2), reduced_data(:, 3), 20, cmap2(index_of_visualization_angle_per_temporal_bin,:), 'fill');
 
 %% Plot colorless and with specific neuron
-NEURON_INDEX = 20;
+NEURON_INDEX = 4;
 
 neuron_activity_indices = full_neuron_firing_per_bin(:, NEURON_INDEX) > 4;
 

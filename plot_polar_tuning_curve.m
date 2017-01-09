@@ -1,5 +1,9 @@
 function [ spike_rate_mat_neuron_by_angle ] = plot_polar_tuning_curve( spike_rate_mat_neuron_by_angle, valid_head_direction_neurons, varargin )
-    global CENTER_OF_ANGLE_BINS;
+    number_of_angle_bins = size(spike_rate_mat_neuron_by_angle, 2);
+    
+    CENTER_OF_ANGLE_BINS = [0.5 * (2 * pi) / number_of_angle_bins:...
+                        (2 * pi) / number_of_angle_bins:...
+                        2 * pi - 0.5 * (2 * pi) / number_of_angle_bins];
     
     % TODO: A little bit hard coded
     if length(varargin) == 2

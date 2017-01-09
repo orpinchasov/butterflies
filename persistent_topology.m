@@ -6,7 +6,7 @@ TOTAL_NUMBER_OF_SAMPLES = 50;
 
 % Topology calculation
 MAX_DIMENSION = 3;
-MAX_FILTRATION_VALUE = 0.012;
+MAX_FILTRATION_VALUE = 0.015;
 %MAX_FILTRATION_VALUE = 0.9;
 NUM_DIVISIONS = 20;
 
@@ -26,7 +26,8 @@ end
 %% Cluster data and get the average point of each cluster
 average_cluster_data_points = zeros(NUMBER_OF_CLUSTERS, 1);
 
-[labels centers] = kmeans(reduced_data(:, 2:3), NUMBER_OF_CLUSTERS);
+rng(0);
+[labels centers] = kmeans(reduced_data(:, 2:4), NUMBER_OF_CLUSTERS);
 
 counts = histcounts(labels, 0.5:1:NUMBER_OF_CLUSTERS + 0.5);
 
@@ -109,7 +110,7 @@ distances = squareform(distances);
 
 for i = 1:NUMBER_OF_CLUSTERS
     for j = 1:NUMBER_OF_CLUSTERS
-        if distances(i, j) < 0.005
+        if distances(i, j) < 0.006
             plot([centers(i, 1) centers(j, 1)], [centers(i, 2) centers(j, 2)], 'k-');
         end
     end
@@ -122,30 +123,30 @@ dimension_1 = homology.barcodes.BarcodeUtility.getEndpoints(intervals, 1, false)
 figure;
 subplot(1, 3, 1);
 hold on;
-% TODO: Magic number at the moment
-xlim([0 0.015]);
 number_of_results = size(dimension_0, 1);
 ylim([0 number_of_results + 1]);
 for i = 1:number_of_results
     if dimension_0(i, 2) == Inf
         plot([dimension_0(i, 1) 0.015], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     else
-        plot([dimension_0(i, 1) dimension_0(i, 1) + dimension_0(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
+        plot([dimension_0(i, 1) dimension_0(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     end
 end
+% TODO: Magic number at the moment
+xlim([0 0.015]);
 
 subplot(1, 3, 2);
 hold on;
-xlim([0 0.015]);
 number_of_results = size(dimension_1, 1);
 ylim([0 number_of_results + 1]);
 for i = 1:number_of_results
-    if dimension_0(i, 2) == Inf
+    if dimension_1(i, 2) == Inf
         plot([dimension_1(i, 1) 0.015], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     else
-        plot([dimension_1(i, 1) dimension_1(i, 1) + dimension_1(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
+        plot([dimension_1(i, 1) dimension_1(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     end
 end
+xlim([0 0.015]);
 
 subplot(1, 3, 3);
 hold on;

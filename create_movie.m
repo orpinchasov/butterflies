@@ -34,7 +34,7 @@ function create_movie( reduced_data, index_of_angle_per_temporal_bin, cmap, beha
         hold(main_ax, 'off');
         %hold off
         % The third argument is the dot size
-        scatter(reduced_data(:, 2), reduced_data(:, 3), 20, cmap(index_of_angle_per_temporal_bin,:), 'fill');
+        scatter(reduced_data(:, 2), reduced_data(:, 3), 5, cmap(index_of_angle_per_temporal_bin,:), 'fill');
         
         original_xlim = xlim;
         original_ylim = ylim;

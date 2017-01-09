@@ -39,4 +39,13 @@ DO = max(DO,DO');%(DO + DO')/2;
 % get eigenvectors
 [v,d] = eigs(DO,number_of_reduced_dimensions,'la');
 
-figure; scatter(v(:, 2), v(:, 3), 40, cmap_clusters, 'fill');
+%% 'v' also known as 'transition_matrix_states'
+figure;
+
+scatter(-v(:, 2), v(:, 3), 300, cmap_clusters, 'fill');
+
+axis equal;
+box;
+
+xlim([-0.7 0.7]);
+ylim([-0.8 0.6]);
