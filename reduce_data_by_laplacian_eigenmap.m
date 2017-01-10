@@ -1,4 +1,6 @@
 function reduced_data = reduce_data_by_laplacian_eigenmap(data, p_neighbors, number_of_reduced_dimensions)
+    rng(0);
+
     N = size(data, 1);
     
     % Changing these values will lead to different nonlinear embeddings

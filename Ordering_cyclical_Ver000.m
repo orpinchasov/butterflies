@@ -1,4 +1,3 @@
-tic
 if 1 %that can be pre-produced (and then reused each time)
     n=8; %there is a way to make it more efficient, becomes relevant for higher n 
     shuffle_mat=nan(factorial(n),n);
@@ -24,20 +23,8 @@ if 1 %that can be pre-produced (and then reused each time)
     ind_mat=sub2ind([n n], rowSub, colSub);    
     %ind_mat=sub2ind([n n], shuffle_mat(:,1:n-1)', shuffle_mat(:,2:n)');
 end
-toc
 
-%%
 % you have to load transition_mat
 diagonals_values_per_shuffle=transition_mat(ind_mat);
 [max_value, max_ind]=max(sum(diagonals_values_per_shuffle,2));
 chosen_shuffle=shuffle_mat(max_ind,:);
-figure;
-colormap('jet');
-imagesc(transition_mat);
-
-figure; 
-colormap('jet');
-imagesc(transition_mat(chosen_shuffle, chosen_shuffle));
-axis square;
-caxis([0 1]);
-colorbar;

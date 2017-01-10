@@ -30,7 +30,7 @@ CENTER_OF_ANGULAR_VELOCITY_BINS = [MIN_ANGULAR_VELOCITY:...
                                    (MAX_ANGULAR_VELOCITY - MIN_ANGULAR_VELOCITY) / (NUMBER_OF_ANGULAR_VELOCITY_BINS - 1):...
                                    MAX_ANGULAR_VELOCITY];
 TEMPORAL_TIME_BIN = BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN / BEHAVIORAL_SAMPLE_RATE;
-SAMPLE_LIMIT = 25000;
+SAMPLE_LIMIT = 20000;
 % TODO: Notice that if we choose not to include these angles we get
 % incorrect results by the decoder because of some delay in the decoded
 % angles compared to the actual angle.
