@@ -18,8 +18,6 @@ function [ firing_rate ] = create_firing_rate_matrix( full_firing_rate, angles )
     frames_per_cluster_count = hist(angles,  CENTER_OF_ESTIMATED_ANGLE_BINS);
     
     number_of_spikes = zeros(number_of_neurons, NUMBER_OF_ESTIMATED_ANGLE_BINS);
-
-    size(full_firing_rate)
     
     for running_bin_index = 1:NUMBER_OF_ESTIMATED_ANGLE_BINS
         number_of_spikes(:, running_bin_index) = sum(full_firing_rate(angles_bin_index == running_bin_index, :), 1);

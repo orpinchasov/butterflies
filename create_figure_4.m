@@ -2,7 +2,7 @@
 
 constants;
 
-% Example neurons for panel G for Mouse28-140313
+% Example neurons for panel G for Mouse28-140313 all brain wake
 % two directions:
 % 45 47
 % 
@@ -13,7 +13,16 @@ constants;
 % 62
 EXAMPLE_NEURONS = [43 46 55 56 61 45 47 62];
 
+% Mouse28-140313 all rem
+EXAMPLE_NEURONS = [44 46 55 59 60 45 57 62];
+
+% Example neurons for panel G for Mouse28-140313 thalamus wake
+%EXAMPLE_NEURONS = [3 4 5 6 17 19 20 22];
+%EXAMPLE_NEURONS = [3 4 6 9 14 15 19 20];
+
 NUMBER_OF_REDUCED_DIMENSIONS_FOR_PCA = 5;
+
+CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = -0.3 * pi;
 
 %% Panel A - reduced neuronal data projected onto a 2D plane
 % Plot the angle on the reduced data
@@ -42,23 +51,38 @@ colorbar;
 
 %% Panel D - plot averaged clustered data 
 % (in order to compare with the transition graph)
-clusters_cmap = hsv(NUMBER_OF_CLUSTERS);
 
-average_cluster_point = ones(NUMBER_OF_CLUSTERS, 2);
-for cluster_index = 1:NUMBER_OF_CLUSTERS
-    cluster_indices = find(clustering_labels == chosen_shuffle(cluster_index));
-    average_cluster_point(cluster_index, :) = mean(reduced_data(cluster_indices, 2:3));
-end
+% The following mechanism allows rotating the color map to match that of
+% the reduced data.
+MIRROR = 1;
+OFFSET = 6;
 
-figure; scatter(average_cluster_point(:, 1), average_cluster_point(:, 2), 300, clusters_cmap, 'fill');
+angle_bins_cmap = hsv(NUMBER_OF_ANGLE_BINS);
+clusters_indices = NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS;
+clusters_cmap = angle_bins_cmap(1 + mod(MIRROR * clusters_indices + OFFSET * NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS, 40), :);
+
+figure;
+scatter(average_cluster_point(:, 1), average_cluster_point(:, 2), 300, clusters_cmap, 'fill');
 
 axis equal;
 box;
 
-xlim([-0.012 0.015]);
-ylim([-0.013 0.014]);
+% Mouse28-140313 all wake
+%xlim([-0.012 0.015]);
+%ylim([-0.013 0.014]);
+
+% Mouse 28-140313 all rem
+xlim([-0.016 0.015]);
+ylim([-0.014 0.017]);
 
 %% Panel E - plot transition probability graph
+% The following mechanism allows rotating the color map to match that of
+% the reduced data.
+MIRROR = 1;
+OFFSET = 6;
+
+rng(0);
+
 % PCA over transition probability
 ordered_transition_mat = transition_mat(chosen_shuffle, chosen_shuffle);
 
@@ -75,15 +99,58 @@ DO = max(DO,DO');%(DO + DO')/2;
 % 'v' also known as 'transition_matrix_states'
 figure;
 
-scatter(-v(:, 2), v(:, 3), 300, clusters_cmap, 'fill');
+angle_bins_cmap = hsv(NUMBER_OF_ANGLE_BINS);
+clusters_indices = NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS;
+clusters_cmap = angle_bins_cmap(1 + mod(MIRROR * clusters_indices + OFFSET * NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS, 40), :);
+scatter(-v(:, 2), -v(:, 3), 300, clusters_cmap, 'fill');
 
 axis equal;
 box;
 
-xlim([-0.7 0.7]);
-ylim([-0.8 0.6]);
+% Mouse28-140313 all wake
+%xlim([-0.7 0.7]);
+%ylim([-0.8 0.6]);
+
+% Mouse 28-140313 all rem
+xlim([-0.7 0.5]);
+ylim([-0.45 0.75]);
+
+
+%% Panel F - trajectory of actual head movement versus clustered movement
+figure;
+scatter(filtered_angle_per_temporal_bin, smoothed_estimated_angle_by_clustering, 'k.');
+xlim([0 2 * pi]);
+ylim([0 2 * pi]);
+axis square;
+
+figure;
+hold on;
+
+plot(angle_per_temporal_bin, 'k.');
+plot(smoothed_estimated_angle_by_clustering, 'r.');
+scatter(angle_per_temporal_bin, estimated_angle_by_clustering, '.');
+
+%% Panel F - REM - use the decoder data
+figure;
+scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 'k.');
+xlim([0 2 * pi]);
+ylim([0 2 * pi]);
+axis square;
+
+figure;
+hold on;
+
+plot(estimated_head_direction_angle_per_sample_index, 'k.');
+plot(smoothed_estimated_angle_by_clustering, 'r.');
+%scatter(estimated_head_direction_angle_per_sample_index, estimated_angle_by_clustering, '.');
+
+% This is stupid
+ticks = get(gca,'XTick');
+set(gca, 'XTickLabel', cellstr(num2str(round(ticks / 10)')));
 
 %% Panel G - actual versus estimated head direction polar plot
+% The actual spike rate matrix is calculated in the wake period regardless
+% of the period we're actually checking at the moment.
 
 figure;
 hold on;
@@ -128,8 +195,8 @@ for neuron_index = 1:length(EXAMPLE_NEURONS);
 end
 
 %% Panel H - scattering of clustering tuning curve versus actual tuning curve
-neuron_actual_preferred_angle = zeros(NUMBER_OF_ANGLE_BINS, 1);
-neuron_clustering_preferred_angle = zeros(NUMBER_OF_CLUSTERS, 1);
+neuron_actual_preferred_angle = zeros(number_of_neurons, 1);
+neuron_clustering_preferred_angle = zeros(number_of_neurons, 1);
 
 for neuron_index = 1:number_of_neurons
     current_neuron_spike_rate_by_angle = spike_rate_mat_neuron_by_angle(neuron_index, :);
@@ -145,7 +212,8 @@ end
 
 % Used to get the slope to be positive (bottom left of figure to upper
 % right)
-corrected_neuron_clustering_preferred_angle = mod(SLOPE_MULTIPLIER * (neuron_clustering_preferred_angle - ACTUAL_VERSUS_CLUSTERING_SHIFT), 2 * pi);
+%corrected_neuron_clustering_preferred_angle = mod(SLOPE_MULTIPLIER * (neuron_clustering_preferred_angle - ACTUAL_VERSUS_CLUSTERING_SHIFT), 2 * pi);
+corrected_neuron_clustering_preferred_angle = mod(SLOPE_MULTIPLIER * (neuron_clustering_preferred_angle + CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT), 2 * pi);
 
 head_direction_neurons_indices = find_head_direction_neurons(spike_rate_mat_neuron_by_angle);
 
@@ -166,9 +234,8 @@ xlabel('Preferred head direction (rad)');
 ylabel('Reconstructed preferred head direction (rad)');
 
 %% Panel H2 - same as above for Reighly vector length
-
-neuron_actual_vector_length = zeros(NUMBER_OF_ANGLE_BINS, 1);
-neuron_clustering_vector_length = zeros(NUMBER_OF_CLUSTERS, 1);
+neuron_actual_vector_length = zeros(number_of_neurons, 1);
+neuron_clustering_vector_length = zeros(number_of_neurons, 1);
 
 for neuron_index = 1:number_of_neurons
     current_neuron_spike_rate_by_angle = spike_rate_mat_neuron_by_angle(neuron_index, :);
@@ -203,4 +270,4 @@ RingDimEst_Ver000
 
 %% Panel J - persistent topology
 % TODO: Currently requires separate handling
-%persistent_topology
+persistent_topology

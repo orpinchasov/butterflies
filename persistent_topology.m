@@ -6,7 +6,7 @@ TOTAL_NUMBER_OF_SAMPLES = 50;
 
 % Topology calculation
 MAX_DIMENSION = 3;
-MAX_FILTRATION_VALUE = 0.015;
+MAX_FILTRATION_VALUE = 0.02;
 %MAX_FILTRATION_VALUE = 0.9;
 NUM_DIVISIONS = 20;
 
@@ -27,7 +27,7 @@ end
 average_cluster_data_points = zeros(NUMBER_OF_CLUSTERS, 1);
 
 rng(0);
-[labels centers] = kmeans(reduced_data(:, 2:4), NUMBER_OF_CLUSTERS);
+[labels centers] = kmeans(reduced_data(:, 2:6), NUMBER_OF_CLUSTERS);
 
 counts = histcounts(labels, 0.5:1:NUMBER_OF_CLUSTERS + 0.5);
 
@@ -64,7 +64,7 @@ end
 %% Get data ready
 
 %point_cloud = reduced_data(all_indices, 2:3);
-point_cloud = centers(~(counts < 50), :);
+point_cloud = centers(~(counts < 75), :);
 %point_cloud = pointsTorusGrid;
 
 figure;
@@ -102,15 +102,10 @@ scatter(centers(:, 1), centers(:, 2), 40, '.r');
 
 distances = pdist(centers);
 distances = squareform(distances);
-%distances(distances == 0) = inf;
-
-[row, col] = find(distances < 0.0015);
-
-%line([centers(row, 1) centers(col, 1)], [centers(row, 2) centers(col, 2)]);
 
 for i = 1:NUMBER_OF_CLUSTERS
     for j = 1:NUMBER_OF_CLUSTERS
-        if distances(i, j) < 0.006
+        if distances(i, j) < 0.009
             plot([centers(i, 1) centers(j, 1)], [centers(i, 2) centers(j, 2)], 'k-');
         end
     end
@@ -133,7 +128,7 @@ for i = 1:number_of_results
     end
 end
 % TODO: Magic number at the moment
-xlim([0 0.015]);
+xlim([0 0.02]);
 
 subplot(1, 3, 2);
 hold on;
@@ -146,8 +141,8 @@ for i = 1:number_of_results
         plot([dimension_1(i, 1) dimension_1(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     end
 end
-xlim([0 0.015]);
+xlim([0 0.02]);
 
 subplot(1, 3, 3);
 hold on;
-xlim([0 0.015]);
+xlim([0 0.02]);

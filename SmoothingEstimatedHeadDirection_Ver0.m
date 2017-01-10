@@ -33,6 +33,6 @@ ylim([0 2 * pi]);
 %%
 figure
 subplot(1,2,1)
-plot(angle_per_temporal_bin,estimated_angle_by_clustering,'k.')
+plot(filtered_angle_per_temporal_bin, estimated_angle_by_clustering,'k.')
 subplot(1,2,2)
-plot(angle_per_temporal_bin,smoothed_estimated_angle_by_clustering,'k.')
+plot(filtered_angle_per_temporal_bin, smoothed_estimated_angle_by_clustering,'k.')

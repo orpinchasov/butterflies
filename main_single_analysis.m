@@ -5,9 +5,9 @@ constants
 %MOUSE_BY_DAY_NAME = 'Mouse12-120806';
 MOUSE_BY_DAY_NAME = 'Mouse28-140313';
 
-BEHAVIORAL_STATE = 'wake'; % 'wake', 'rem', 'sws'
+BEHAVIORAL_STATE = 'rem'; % 'wake', 'rem', 'sws'
 
-BRAIN_REGION = 1; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal, 5 - all
+BRAIN_REGION = 5; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal, 5 - all
 
 % Various configurations for analysis
 MOVEMENT_THRESHOLD = 0.08;
@@ -15,8 +15,10 @@ NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
 NUMBER_OF_CLUSTERS = 8;
 CLUSTERING_DIMENSIONS = 2:7;
 
-SLOPE_MULTIPLIER = -1; % Either 1 or -1 to turn slope
-ACTUAL_VERSUS_CLUSTERING_SHIFT = 0.5 * pi;
+SLOPE_MULTIPLIER = 1; % Either 1 or -1 to turn slope
+ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.5 * pi;
+
+MIRROR_ORDERING = false;
 
 % Derived constants
 CENTER_OF_CLUSTERING_ANGLE_BINS = 0.5 * (2 * pi) / NUMBER_OF_CLUSTERS:...
@@ -92,8 +94,8 @@ filter_mask = true(length(full_neuron_firing_per_bin), 1);
 %% Truncate data according to actual frames being used
 
 filtered_neuron_firing = filtered_full_neuron_firing(filter_mask, :);
-filtered_angle_per_temporal_bin = angle_per_temporal_bin(filter_mask);
-filtered_position_per_temporal_bin = position_per_temporal_bin(filter_mask);
+filtered_angle_per_temporal_bin = angle_per_temporal_bin(filter_mask)';
+filtered_position_per_temporal_bin = position_per_temporal_bin(filter_mask)';
 
 %% Plotting of basic data extracted
 % TODO: Complete if necessary
@@ -109,6 +111,7 @@ reduced_data = full_reduced_data{length(P_NEIGHBORS_VEC) + 1};
 
 spike_rate_mat_neuron_by_angle = calculate_spike_rate_neuron_by_angle(T, G, Ang, wake);
 
+% Use decoder to estimate head direction
 estimated_head_direction_angle_per_sample_index = estimate_head_direction(spike_rate_mat_neuron_by_angle, full_neuron_firing_per_bin);
 
 % Filter the estimated head direction
@@ -155,7 +158,7 @@ figure;
 plot3(reduced_data(:,2),reduced_data(:,3),reduced_data(:,4),'.');
 
 % Plot the angle on the reduced data
-cmap2=hsv(NUMBER_OF_ANGLE_BINS);
+cmap2 = hsv(NUMBER_OF_ANGLE_BINS);
 % Add black color for 'nan' values
 cmap2 = [cmap2; 0 0 0];
 
@@ -213,8 +216,8 @@ scatter(reduced_data(:, 2), reduced_data(:, 3), 20, cmap_clustering(clustering_l
 axis equal;
 box;
 
-xlim([-0.012 0.015]);
-ylim([-0.013 0.014]);
+%xlim([-0.012 0.015]);
+%ylim([-0.013 0.014]);
 
 xlabel('Comp. 1');
 ylabel('Comp. 2');
@@ -236,7 +239,11 @@ for cluster_index = 1:NUMBER_OF_CLUSTERS
     cluster_indices = find(clustering_labels == chosen_shuffle(cluster_index));
     % TODO: The 9 here is temporary and is needed when the slope multiplier
     % is -1
-    ordered_clustering_results(cluster_indices) = 9 - cluster_index;
+    if MIRROR_ORDERING == true
+        ordered_clustering_results(cluster_indices) = 9 - cluster_index;
+    else
+        ordered_clustering_results(cluster_indices) = cluster_index;
+    end
 end
 
 estimated_angle_by_clustering = mod(CENTER_OF_CLUSTERING_ANGLE_BINS(ordered_clustering_results) + ACTUAL_VERSUS_CLUSTERING_SHIFT, 2 * pi);
@@ -252,7 +259,7 @@ frames_per_cluster_count = histcounts(clustering_labels,  0.5:1:NUMBER_OF_CLUSTE
 for cluster_index = 1:NUMBER_OF_CLUSTERS
     cluster_frames_indices = find(clustering_labels == cluster_index);
     
-    neuron_by_cluster_spike_count(cluster_index, :) = sum(full_neuron_firing_per_bin(cluster_frames_indices, :), 1);
+    neuron_by_cluster_spike_count(cluster_index, :) = sum(filtered_neuron_firing(cluster_frames_indices, :), 1);
 end
 
 neuron_firing_rate = (neuron_by_cluster_spike_count ./ repmat(frames_per_cluster_count', [1 number_of_neurons])) * (BEHAVIORAL_SAMPLE_RATE / BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN);
@@ -358,29 +365,12 @@ for neuron_index = 1:number_of_head_direction_neurons
     text(-pi / 4, 1.2 * r_max, ['Rayleigh = ' num2str(length_of_current_cell, '%10.2f')]);
 end
 
-%% Trajectory of actual head movement versus clustered movement
-
-
-figure;
-scatter(filtered_angle_per_temporal_bin, smoothed_estimated_angle_by_clustering, 'k.');
-xlim([0 2 * pi]);
-ylim([0 2 * pi]);
-axis square;
-
-%figure;
-%hold on;
-
-%plot(angle_per_temporal_bin, 'k.');
-%plot(estimated_angle_by_clustering, 'r.');
-%plot(2 * pi - smoothed_estimated_angle_by_clustering, 'r.');
-%scatter(angle_per_temporal_bin, estimated_angle_by_clustering, '.');
-
 %% Plot the estimated polar plots
 mouse = 'Mouse28';
 mouse = mouse_by_electrode_brain_region(mouse);
 id = mouse('140313');
 
-firing_rate = create_firing_rate_matrix(full_neuron_firing_per_bin, smoothed_estimated_angle_by_clustering);
+firing_rate = create_firing_rate_matrix(filtered_neuron_firing, smoothed_estimated_angle_by_clustering);
 plot_polar_tuning_curve(firing_rate, head_direction_neurons_indices, Map, id);
 plot_polar_tuning_curve(spike_rate_mat_neuron_by_angle, head_direction_neurons_indices, Map, id);
 
