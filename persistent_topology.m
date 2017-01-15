@@ -6,7 +6,7 @@ TOTAL_NUMBER_OF_SAMPLES = 50;
 
 % Topology calculation
 MAX_DIMENSION = 3;
-MAX_FILTRATION_VALUE = 0.02;
+MAX_FILTRATION_VALUE = 0.022;
 %MAX_FILTRATION_VALUE = 0.9;
 NUM_DIVISIONS = 20;
 
@@ -27,7 +27,7 @@ end
 average_cluster_data_points = zeros(NUMBER_OF_CLUSTERS, 1);
 
 rng(0);
-[labels centers] = kmeans(reduced_data(:, 2:6), NUMBER_OF_CLUSTERS);
+[labels centers] = kmeans(reduced_data(:, 2:4), NUMBER_OF_CLUSTERS);
 
 counts = histcounts(labels, 0.5:1:NUMBER_OF_CLUSTERS + 0.5);
 
@@ -64,7 +64,7 @@ end
 %% Get data ready
 
 %point_cloud = reduced_data(all_indices, 2:3);
-point_cloud = centers(~(counts < 75), :);
+point_cloud = centers(~(counts < 100), :);
 %point_cloud = pointsTorusGrid;
 
 figure;
@@ -105,7 +105,7 @@ distances = squareform(distances);
 
 for i = 1:NUMBER_OF_CLUSTERS
     for j = 1:NUMBER_OF_CLUSTERS
-        if distances(i, j) < 0.009
+        if distances(i, j) < 0.008
             plot([centers(i, 1) centers(j, 1)], [centers(i, 2) centers(j, 2)], 'k-');
         end
     end
@@ -122,13 +122,13 @@ number_of_results = size(dimension_0, 1);
 ylim([0 number_of_results + 1]);
 for i = 1:number_of_results
     if dimension_0(i, 2) == Inf
-        plot([dimension_0(i, 1) 0.015], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
+        plot([dimension_0(i, 1) MAX_FILTRATION_VALUE], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     else
         plot([dimension_0(i, 1) dimension_0(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     end
 end
 % TODO: Magic number at the moment
-xlim([0 0.02]);
+xlim([0 MAX_FILTRATION_VALUE]);
 
 subplot(1, 3, 2);
 hold on;
@@ -136,13 +136,13 @@ number_of_results = size(dimension_1, 1);
 ylim([0 number_of_results + 1]);
 for i = 1:number_of_results
     if dimension_1(i, 2) == Inf
-        plot([dimension_1(i, 1) 0.015], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
+        plot([dimension_1(i, 1) MAX_FILTRATION_VALUE], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     else
         plot([dimension_1(i, 1) dimension_1(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     end
 end
-xlim([0 0.02]);
+xlim([0 MAX_FILTRATION_VALUE]);
 
 subplot(1, 3, 3);
 hold on;
-xlim([0 0.02]);
+xlim([0 MAX_FILTRATION_VALUE]);

@@ -11,7 +11,7 @@ constants;
 % 
 % no direction:
 % 62
-EXAMPLE_NEURONS = [43 46 55 56 61 45 47 62];
+%EXAMPLE_NEURONS = [43 46 55 56 61 45 47 62];
 
 % Mouse28-140313 all rem
 EXAMPLE_NEURONS = [44 46 55 59 60 45 57 62];
@@ -60,6 +60,12 @@ OFFSET = 6;
 angle_bins_cmap = hsv(NUMBER_OF_ANGLE_BINS);
 clusters_indices = NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS;
 clusters_cmap = angle_bins_cmap(1 + mod(MIRROR * clusters_indices + OFFSET * NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS, 40), :);
+
+average_cluster_point = ones(NUMBER_OF_CLUSTERS, 2);
+for cluster_index = 1:NUMBER_OF_CLUSTERS
+    cluster_indices = find(clustering_labels == chosen_shuffle(cluster_index));
+    average_cluster_point(cluster_index, :) = mean(reduced_data(cluster_indices, 2:3));
+end
 
 figure;
 scatter(average_cluster_point(:, 1), average_cluster_point(:, 2), 300, clusters_cmap, 'fill');

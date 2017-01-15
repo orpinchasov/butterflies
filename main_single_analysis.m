@@ -5,13 +5,16 @@ constants
 %MOUSE_BY_DAY_NAME = 'Mouse12-120806';
 MOUSE_BY_DAY_NAME = 'Mouse28-140313';
 
-BEHAVIORAL_STATE = 'rem'; % 'wake', 'rem', 'sws'
+BEHAVIORAL_STATE = 'wake'; % 'wake', 'rem', 'sws'
 
-BRAIN_REGION = 5; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal, 5 - all
+BRAIN_REGION = 1; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal, 5 - all
 
 % Various configurations for analysis
 MOVEMENT_THRESHOLD = 0.08;
-NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+% For 'wake'
+%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+% For 'rem'
+NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
 NUMBER_OF_CLUSTERS = 8;
 CLUSTERING_DIMENSIONS = 2:7;
 
