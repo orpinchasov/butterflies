@@ -14,15 +14,15 @@ constants;
 %EXAMPLE_NEURONS = [43 46 55 56 61 45 47 62];
 
 % Mouse28-140313 all rem
-EXAMPLE_NEURONS = [44 46 55 59 60 45 57 62];
+%EXAMPLE_NEURONS = [44 46 55 59 60 45 57 62];
 
 % Example neurons for panel G for Mouse28-140313 thalamus wake
-%EXAMPLE_NEURONS = [3 4 5 6 17 19 20 22];
+EXAMPLE_NEURONS = [3 4 5 6 17 19 20 22];
 %EXAMPLE_NEURONS = [3 4 6 9 14 15 19 20];
 
 NUMBER_OF_REDUCED_DIMENSIONS_FOR_PCA = 5;
 
-CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = -0.3 * pi;
+CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = -0.6 * pi;
 
 %% Panel A - reduced neuronal data projected onto a 2D plane
 % Plot the angle on the reduced data
@@ -35,7 +35,7 @@ index_of_visualization_angle_per_temporal_bin(index_of_visualization_angle_per_t
 % Color the missing values in black
 index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle_per_temporal_bin)) = NUMBER_OF_ANGLE_BINS + 1;
 
-figure(1);
+figure;
 scatter(reduced_data(:, 2), reduced_data(:, 3), 5, head_direction_cmap(index_of_visualization_angle_per_temporal_bin, :), 'fill');
 
 xlabel('Comp. 1');
@@ -55,7 +55,7 @@ colorbar;
 % The following mechanism allows rotating the color map to match that of
 % the reduced data.
 MIRROR = 1;
-OFFSET = 6;
+OFFSET = 5;
 
 angle_bins_cmap = hsv(NUMBER_OF_ANGLE_BINS);
 clusters_indices = NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS;
@@ -77,15 +77,19 @@ box;
 %xlim([-0.012 0.015]);
 %ylim([-0.013 0.014]);
 
+% Mouse 28-140313 thalamus wake
+xlim([-0.013 0.013]);
+ylim([-0.016 0.010]);
+
 % Mouse 28-140313 all rem
-xlim([-0.016 0.015]);
-ylim([-0.014 0.017]);
+%xlim([-0.016 0.015]);
+%ylim([-0.014 0.017]);
 
 %% Panel E - plot transition probability graph
 % The following mechanism allows rotating the color map to match that of
 % the reduced data.
 MIRROR = 1;
-OFFSET = 6;
+OFFSET = 5;
 
 rng(0);
 
@@ -108,7 +112,7 @@ figure;
 angle_bins_cmap = hsv(NUMBER_OF_ANGLE_BINS);
 clusters_indices = NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS;
 clusters_cmap = angle_bins_cmap(1 + mod(MIRROR * clusters_indices + OFFSET * NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS, 40), :);
-scatter(-v(:, 2), -v(:, 3), 300, clusters_cmap, 'fill');
+scatter(-v(:, 2), v(:, 3), 300, clusters_cmap, 'fill');
 
 axis equal;
 box;
@@ -117,9 +121,13 @@ box;
 %xlim([-0.7 0.7]);
 %ylim([-0.8 0.6]);
 
+% Mouse28-140313 thalamus wake
+xlim([-0.6 0.8]);
+ylim([-0.8 0.6]);
+
 % Mouse 28-140313 all rem
-xlim([-0.7 0.5]);
-ylim([-0.45 0.75]);
+%xlim([-0.7 0.5]);
+%ylim([-0.45 0.75]);
 
 
 %% Panel F - trajectory of actual head movement versus clustered movement
@@ -134,7 +142,11 @@ hold on;
 
 plot(angle_per_temporal_bin, 'k.');
 plot(smoothed_estimated_angle_by_clustering, 'r.');
-scatter(angle_per_temporal_bin, estimated_angle_by_clustering, '.');
+%scatter(angle_per_temporal_bin, estimated_angle_by_clustering, '.');
+
+% This is stupid
+ticks = get(gca,'XTick');
+set(gca, 'XTickLabel', cellstr(num2str(round(ticks / 10)')));
 
 %% Panel F - REM - use the decoder data
 figure;

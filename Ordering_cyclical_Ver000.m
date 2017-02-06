@@ -1,5 +1,5 @@
 if 1 %that can be pre-produced (and then reused each time)
-    n=8; %there is a way to make it more efficient, becomes relevant for higher n 
+    n=NUMBER_OF_CLUSTERS; %there is a way to make it more efficient, becomes relevant for higher n 
     shuffle_mat=nan(factorial(n),n);
     for run_shuffle=1:factorial(n)
         temp_shuffle_vec=nan(1,n);

@@ -1,3 +1,9 @@
+%%
+cd('C:\Users\orp\Downloads\matlab_examples');
+load_javaplex;
+cd('d:\dev\alon_data\code\custom_scripts');
+
+%%
 % Import project-wide constants
 constants
 
@@ -7,21 +13,33 @@ MOUSE_BY_DAY_NAME = 'Mouse28-140313';
 
 BEHAVIORAL_STATE = 'wake'; % 'wake', 'rem', 'sws'
 
-BRAIN_REGION = 1; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal, 5 - all
+BRAIN_REGION = 5; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal, 5 - all
 
 % Various configurations for analysis
 MOVEMENT_THRESHOLD = 0.08;
 % For 'wake'
-%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+% For 'wake' thalamus only
+%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
 % For 'rem'
-NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
+%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
 NUMBER_OF_CLUSTERS = 8;
 CLUSTERING_DIMENSIONS = 2:7;
 
-SLOPE_MULTIPLIER = 1; % Either 1 or -1 to turn slope
-ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.5 * pi;
+% Wake all filtered
+ACTUAL_VERSUS_CLUSTERING_SHIFT = 2.75 * pi;
 
+% Wake all unfiltered
+%ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.4 * pi;
+
+% REM all filtered
+%ACTUAL_VERSUS_CLUSTERING_SHIFT = 0.4 * pi;
+
+% Wake
 MIRROR_ORDERING = false;
+
+% REM
+%MIRROR_ORDERING = true;
 
 % Derived constants
 CENTER_OF_CLUSTERING_ANGLE_BINS = 0.5 * (2 * pi) / NUMBER_OF_CLUSTERS:...
@@ -96,6 +114,7 @@ filter_mask = true(length(full_neuron_firing_per_bin), 1);
 
 %% Truncate data according to actual frames being used
 
+filtered_full_neuron_firing_per_bin = full_neuron_firing_per_bin(filter_mask, :);
 filtered_neuron_firing = filtered_full_neuron_firing(filter_mask, :);
 filtered_angle_per_temporal_bin = angle_per_temporal_bin(filter_mask)';
 filtered_position_per_temporal_bin = position_per_temporal_bin(filter_mask)';
@@ -240,10 +259,9 @@ ordered_clustering_labels = zeros(size(clustering_labels));
 
 for cluster_index = 1:NUMBER_OF_CLUSTERS
     cluster_indices = find(clustering_labels == chosen_shuffle(cluster_index));
-    % TODO: The 9 here is temporary and is needed when the slope multiplier
-    % is -1
+    
     if MIRROR_ORDERING == true
-        ordered_clustering_results(cluster_indices) = 9 - cluster_index;
+        ordered_clustering_results(cluster_indices) = NUMBER_OF_CLUSTERS + 1 - cluster_index;
     else
         ordered_clustering_results(cluster_indices) = cluster_index;
     end
@@ -251,7 +269,11 @@ end
 
 estimated_angle_by_clustering = mod(CENTER_OF_CLUSTERING_ANGLE_BINS(ordered_clustering_results) + ACTUAL_VERSUS_CLUSTERING_SHIFT, 2 * pi);
 
-SmoothingEstimatedHeadDirection_Ver0
+%% Truncate data according to actual frames being used
+full_estimated_angle_by_clustering = zeros(size(full_neuron_firing_per_bin, 1), 1);
+full_estimated_angle_by_clustering(filter_mask) = estimated_angle_by_clustering;
+
+smoothed_estimated_angle_by_clustering = smooth_estimated_angle(full_estimated_angle_by_clustering, filter_mask)';
 
 %% Create tuning curves by clusters
 neuron_by_cluster_spike_count = zeros(NUMBER_OF_CLUSTERS, number_of_neurons);
@@ -373,7 +395,7 @@ mouse = 'Mouse28';
 mouse = mouse_by_electrode_brain_region(mouse);
 id = mouse('140313');
 
-firing_rate = create_firing_rate_matrix(filtered_neuron_firing, smoothed_estimated_angle_by_clustering);
+firing_rate = create_firing_rate_matrix(filtered_full_neuron_firing_per_bin, smoothed_estimated_angle_by_clustering);
 plot_polar_tuning_curve(firing_rate, head_direction_neurons_indices, Map, id);
 plot_polar_tuning_curve(spike_rate_mat_neuron_by_angle, head_direction_neurons_indices, Map, id);
 
@@ -400,12 +422,12 @@ end
 figure;
 hist(correlations, 8);
 
-
 hist_mat = [hist(correlations(head_direction_neurons_indices), CENTER_OF_HISTOGRAM_BINS); ...
             hist(correlations(~ismember(1:number_of_neurons, head_direction_neurons_indices)), CENTER_OF_HISTOGRAM_BINS)];
 
 figure;
 
+colormap jet;
 bar(CENTER_OF_HISTOGRAM_BINS, hist_mat', 'stacked');
 
 xlabel('Correlation');
