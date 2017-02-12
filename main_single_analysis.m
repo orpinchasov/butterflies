@@ -18,19 +18,20 @@ BRAIN_REGION = 5; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal
 % Various configurations for analysis
 MOVEMENT_THRESHOLD = 0.08;
 % For 'wake'
-NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
 % For 'wake' thalamus only
 %NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
 % For 'rem'
-%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
+%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+
 NUMBER_OF_CLUSTERS = 8;
 CLUSTERING_DIMENSIONS = 2:7;
 
 % Wake all filtered
-ACTUAL_VERSUS_CLUSTERING_SHIFT = 2.75 * pi;
+%ACTUAL_VERSUS_CLUSTERING_SHIFT = 2.75 * pi;
 
 % Wake all unfiltered
-%ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.4 * pi;
+ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.4 * pi;
 
 % REM all filtered
 %ACTUAL_VERSUS_CLUSTERING_SHIFT = 0.4 * pi;
@@ -232,14 +233,10 @@ clustering_labels = labels.labels' + 1;
 cmap_clustering = jet(NUMBER_OF_CLUSTERS);
 
 figure;
-%scatter3(reduced_data(:, 2), reduced_data(:, 3), reduced_data(:, 4), 20, cmap_clustering(clustering_results, :), 'fill');
 scatter(reduced_data(:, 2), reduced_data(:, 3), 20, cmap_clustering(clustering_labels, :), 'fill');
 
 axis equal;
 box;
-
-%xlim([-0.012 0.015]);
-%ylim([-0.013 0.014]);
 
 xlabel('Comp. 1');
 ylabel('Comp. 2');
@@ -391,8 +388,10 @@ for neuron_index = 1:number_of_head_direction_neurons
 end
 
 %% Plot the estimated polar plots
+%mouse = 'Mouse12';
 mouse = 'Mouse28';
 mouse = mouse_by_electrode_brain_region(mouse);
+%id = mouse('120806');
 id = mouse('140313');
 
 firing_rate = create_firing_rate_matrix(filtered_full_neuron_firing_per_bin, smoothed_estimated_angle_by_clustering);
@@ -432,3 +431,6 @@ bar(CENTER_OF_HISTOGRAM_BINS, hist_mat', 'stacked');
 
 xlabel('Correlation');
 ylabel('Count');
+
+%%
+persistent_topology;

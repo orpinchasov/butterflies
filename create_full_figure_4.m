@@ -2,19 +2,9 @@
 
 constants;
 
-% Example neurons for panel G for Mouse28-140313 all brain wake
-% two directions:
-% 45 47
-% 
-% one direction:
-% 43 46 55 56 61
-% 
-% no direction:
-% 62
-EXAMPLE_NEURONS = [43 45 47 62 46 56 55 61];
+TYPE = 'wake';
+FILTERED = false;
 
-% Mouse28-140313 all rem
-%EXAMPLE_NEURONS = [44 46 55 59 60 45 57 62];
 
 % Example neurons for panel G for Mouse28-140313 thalamus wake
 %EXAMPLE_NEURONS = [3 4 5 6 17 19 20 22];
@@ -22,46 +12,78 @@ EXAMPLE_NEURONS = [43 45 47 62 46 56 55 61];
 
 NUMBER_OF_REDUCED_DIMENSIONS_FOR_PCA = 5;
 
-SLOPE_MULTIPLIER = -1; % Either 1 or -1 to turn slope
-% Filtered data
-CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = 0.85 * pi;
-% Unfiltered data
-%CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = 1.5 * pi;
+if strcmp(TYPE, 'wake')
+    load('reduced_data_rem_all');
+    load('index_of_visualization_angle_per_temporal_bin_rem_all');
+end
+
+if strcmp(TYPE, 'wake') && FILTERED == false
+    SLOPE_MULTIPLIER = -1;
+    CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = 1.5 * pi;
+    
+    % Example neurons for panel G for Mouse28-140313 all brain wake
+    % two directions:
+    % 45 47
+    % 
+    % one direction:
+    % 43 46 55 56 61
+    % 
+    % no direction:
+    % 62
+    EXAMPLE_NEURONS = [43 45 47 62 46 56 55 61];
+    
+    PANEL_A_XLIM = [-0.012 0.015];
+    PANEL_A_YLIM = [-0.013 0.014];
+    
+    PANEL_D_XLIM = [-0.7 0.7];
+    PANEL_D_YLIM = [-0.8 0.6];
+elseif strcmp(TYPE, 'wake') && FILTERED == true
+    SLOPE_MULTIPLIER = -1;
+    CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = 0.85 * pi;
+    
+    PANEL_A_XLIM = [-0.015 0.012];
+    PANEL_A_YLIM = [-0.012 0.015];
+elseif strcmp(TYPE, 'rem') && FILTERED == true
+    SLOPE_MULTIPLIER = 1;
+    CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = -0.3 * pi;
+    
+    % Mouse28-140313 all rem
+    EXAMPLE_NEURONS = [44 45 57 62 59 46 55 60];
+
+    PANEL_A_XLIM = [-0.018 0.017];
+    PANEL_A_YLIM = [-0.016 0.019];
+    
+    PANEL_D_XLIM = [-0.7 0.7];
+    PANEL_D_YLIM = [-0.8 0.6];
+else
+    warning('Unknown combination of parameters!');
+end
 
 figure;
 findfigs;
 
 %Some WYSIWYG options:
-set(gcf,'DefaultAxesFontSize',8);
-set(gcf,'DefaultAxesFontName','arial');
-fig_size_y=25;
-fig_size_x=22;
-set(gcf,'PaperUnits','centimeters','PaperPosition',[5 2 fig_size_x fig_size_y]);
-set(gcf,'PaperOrientation','portrait');
-set(gcf,'Units','centimeters','Position',get(gcf,'paperPosition')+[3 -6 0 0]); %+[4 2 0 0]);
+set(gcf, 'DefaultAxesFontSize', 8);
+set(gcf, 'DefaultAxesFontName', 'arial');
+fig_size_y = 25;
+fig_size_x = 22;
+
+set(gcf, 'PaperUnits', 'centimeters', 'PaperPosition', [5 2 fig_size_x fig_size_y]);
+set(gcf, 'PaperOrientation', 'portrait');
+set(gcf, 'Units', 'centimeters', 'Position', get(gcf,'paperPosition') + [3 -6 0 0]);
 
 % Define sizes and spacings
-x_size1=0.18; %
-x_size2=0.11; %
-x_size3=0.25; %
-x_size4=0.4; %
-x_size5=0.02; % colorbar
+x_size1 = 0.14;
+x_size2 = 0.01; % colorbar
 x_size_insert = 0.1;
-x_space1=0.07;
-x_space2=0.025;
 
-y_size1=x_size1*fig_size_x/fig_size_y;
-y_size2=x_size2*fig_size_x/fig_size_y;
-y_size3=0.125;
-y_size4=0.32;
-y_size5=y_size1;
-y_size_insert = x_size_insert*fig_size_x/fig_size_y;
-y_space1=0.1;
-y_space2=0.1;
+y_size1 = x_size1 * fig_size_x / fig_size_y;
+y_size2 = y_size1;
+y_size_insert = x_size_insert * fig_size_x / fig_size_y;
 
 x_margin = 0.06;
 x_spacing = 0.24;
-y_margin = 0.02;
+y_margin = 0.04;
 y_spacing = 0.2;
 
 grid_1_x = x_margin;
@@ -74,7 +96,6 @@ grid_2_y = grid_1_y + y_spacing;
 grid_3_y = grid_2_y + y_spacing;
 grid_4_y = grid_3_y + y_spacing;
 grid_5_y = grid_4_y + y_spacing;
-
 
 
 % Panel A - reduced neuronal data projected onto a 2D plane
@@ -90,25 +111,19 @@ index_of_visualization_angle_per_temporal_bin(index_of_visualization_angle_per_t
 % Color the missing values in black
 index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle_per_temporal_bin)) = NUMBER_OF_ANGLE_BINS + 1;
 
-scatter(reduced_data(:, 2), reduced_data(:, 3), 5, 'fill');
+scatter(reduced_data(:, 2), reduced_data(:, 3), 5, 'fill', 'k');
 
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
+set(gca, 'ytick', [-0.01 0 0.01]);
 
 xlabel('Comp. 1');
 ylabel('Comp. 2');
 
-% Mouse28-140313 all wake unfiltered
-%xlim([-0.012 0.015]);
-%ylim([-0.013 0.014]);
-
-% Mouse28-140313 all wake filtered
-xlim([-0.015 0.012]);
-ylim([-0.012 0.015]);
+xlim(PANEL_A_XLIM);
+ylim(PANEL_A_YLIM);
 
 
 % Panel B - ordered transition matrix
-axes('position', [grid_2_x * 0.92 grid_5_y x_size1 y_size1]);
+axes('position', [grid_2_x * 0.94 grid_5_y x_size1 y_size1]);
 
 imagesc(imcomplement(transition_mat(chosen_shuffle, chosen_shuffle)));
 set(gca, 'xticklabel', []);
@@ -118,7 +133,9 @@ xlabel('Cluster (t+1)');
 ylabel('Cluster (t)');
 
 % Panel B - colorbar
-axes('position', [grid_2_x * 0.9 + x_size1 + 0.01 grid_5_y x_size5 y_size5], 'YAxisLocation', 'right');
+axes('position', [grid_2_x * 0.95 + x_size1 + 0.01 grid_5_y x_size2 y_size2], 'YAxisLocation', 'right');
+hold on;
+
 cmap_jet=1-colormap('gray');
 num_colors=size(cmap_jet,1);
 set(gca,'xtick',[])
@@ -126,14 +143,16 @@ set(gca,'xtick',[])
 xlim([0 1])
 ylim([0 1])
 for n=1:num_colors
-    hold on
     p=patch([0 1 1 0],[n/num_colors n/num_colors (n-1)/num_colors (n-1)/num_colors],cmap_jet(n,:));
     set(p,'FaceAlpha',1,'EdgeColor','none');
 end
-box;
 
-y = ylabel('Transition probability', 'rot', -90);
-set(y, 'Units', 'Normalized', 'Position', [3.5, 0.5, 0]);
+plot([0 1 1 0 0], [0 0 1 1 0], 'k-');
+set(gca,'ytick',[0 1])
+set(gca, 'yticklabel', [0 1]);
+
+y = ylabel('Transition probability');
+set(y, 'Units', 'Normalized', 'Position', [2, 0.5, 0]);
 
 % Panel C - plot averaged clustered data 
 axes('position', [grid_3_x * 1.05 grid_5_y x_size1 y_size1]);
@@ -157,16 +176,18 @@ end
 
 scatter(average_cluster_point(:, 1), average_cluster_point(:, 2), 100, clusters_cmap, 'fill');
 
-%axis equal;
-box;
+set(gca, 'ytick', [-0.01 0 0.01]);
+
+xlim(PANEL_A_XLIM);
+ylim(PANEL_A_YLIM);
 
 % Mouse28-140313 all wake unfiltered
 %xlim([-0.012 0.015]);
 %ylim([-0.013 0.014]);
 
 % Mouse28-140313 all wake filtered
-xlim([-0.015 0.012]);
-ylim([-0.012 0.015]);
+%xlim([-0.015 0.012]);
+%ylim([-0.012 0.015]);
 
 % Mouse 28-140313 thalamus wake
 %xlim([-0.013 0.013]);
@@ -175,9 +196,6 @@ ylim([-0.012 0.015]);
 % Mouse 28-140313 all rem
 %xlim([-0.016 0.015]);
 %ylim([-0.014 0.017]);
-
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
 
 xlabel('Comp. 1');
 ylabel('Comp. 2');
@@ -212,12 +230,12 @@ clusters_indices = NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BIN
 clusters_cmap = angle_bins_cmap(1 + mod(MIRROR * clusters_indices + OFFSET * NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS, 40), :);
 scatter(-v(:, 2), v(:, 3), 100, clusters_cmap, 'fill');
 
-%axis equal;
-box;
+xlim(PANEL_D_XLIM);
+ylim(PANEL_D_YLIM);
 
 % Mouse28-140313 all wake
-xlim([-0.7 0.7]);
-ylim([-0.6 0.8]);
+%xlim([-0.7 0.7]);
+%ylim([-0.6 0.8]);
 
 % Mouse28-140313 all wake unfiltered
 %xlim([-0.7 0.7]);
@@ -227,13 +245,6 @@ ylim([-0.6 0.8]);
 %xlim([-0.6 0.8]);
 %ylim([-0.8 0.6]);
 
-% Mouse 28-140313 all rem
-%xlim([-0.7 0.5]);
-%ylim([-0.45 0.75]);
-
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
-
 xlabel('Comp. 1');
 ylabel('Comp. 2');
 
@@ -241,16 +252,17 @@ ylabel('Comp. 2');
 % Panel E - trajectory of actual head movement versus clustered movement
 axes('position', [grid_1_x grid_4_y x_size1 * 2 + x_spacing - x_size1 y_size1]);
 
-%scatter(filtered_angle_per_temporal_bin, smoothed_estimated_angle_by_clustering, 'k.');
-%xlim([0 2 * pi]);
-%ylim([0 2 * pi]);
-%axis square;
-
 hold on;
 
-plot(filtered_angle_per_temporal_bin, 'k.');
+if strcmp(TYPE, 'wake')
+    plot(filtered_angle_per_temporal_bin, 'k.');
+elseif strcmp(TYPE, 'rem')
+    plot(estimated_head_direction_angle_per_sample_index, 'k.');
+else
+    warning('Unknown type!')
+end
+
 plot(smoothed_estimated_angle_by_clustering, 'r.');
-%scatter(angle_per_temporal_bin, estimated_angle_by_clustering, '.');
 
 ylim([0 2 * pi]);
 xlim([2000 6000]);
@@ -262,11 +274,18 @@ set(gca, 'XTickLabel', cellstr(num2str(round(ticks / 10)')));
 xlabel('Sample');
 ylabel('Angle (rad)');
 
-legend('Actual head direction', 'Internal head direction', 'Location', 'northwest');
+if strcmp(TYPE, 'wake')
+    l = legend('Head direction', 'Internal direction', 'Location', 'northwest', 'orientation','horizontal');
+    set(l, 'position', get(l, 'position') + [-0.01 0.035 0 0]);
+elseif strcmp(TYPE, 'rem')
+    legend('Estimated HD', 'Internal direction', 'Location', 'northwest', 'orientation','horizontal');
+else
+    warning('Unknown type!')
+end
 
 % Panel E (insert) - estimated head direction as decoder's output vs
 % smoothed estimated angle by clustering
-axes('position', [grid_2_x + x_size1 * 0.5 grid_4_y + y_size1 * 0.5 x_size_insert y_size_insert]);
+axes('position', [grid_2_x + x_size1 * 0.37 grid_4_y + y_size1 * 0.37 x_size_insert y_size_insert]);
 scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1, 'k.');
 xlim([0 2 * pi]);
 ylim([0 2 * pi]);
@@ -275,8 +294,7 @@ set(gca, 'YTickLabel', []);
 box;
 
 % Panel F - trajectory of actual head movement versus clustered movement
-%axes('position',[start_x_F start_y_F size_x_F size_y_F]);
-plot_polar_tuning_curve_by_axes(spike_rate_mat_neuron_by_angle, firing_rate, EXAMPLE_NEURONS, grid_3_x, grid_3_y, 0.10, 0.09);
+plot_polar_tuning_curve_by_axes(spike_rate_mat_neuron_by_angle, firing_rate, EXAMPLE_NEURONS, grid_3_x, grid_3_y * 0.93, 0.10, 0.09);
 
 % Panel G - actual angle per temporal bin over reduced data
 axes('position', [grid_1_x grid_3_y x_size1 y_size1]);
@@ -286,7 +304,14 @@ cmap3 = hsv(NUMBER_OF_ANGLE_BINS);
 % Add black color for 'nan' values
 cmap3 = [cmap3; 0 0 0];
 
-visualization_angle_per_temporal_bin = filtered_angle_per_temporal_bin;
+if strcmp(TYPE, 'wake')
+    visualization_angle_per_temporal_bin = filtered_angle_per_temporal_bin;
+elseif strcmp(TYPE, 'rem')
+    visualization_angle_per_temporal_bin = estimated_head_direction_angle_per_sample_index;
+else
+    warning('Unknown type!')
+end
+
 
 index_of_visualization_angle_per_temporal_bin = round(NUMBER_OF_ANGLE_BINS * visualization_angle_per_temporal_bin / ( 2 * pi));
 index_of_visualization_angle_per_temporal_bin(index_of_visualization_angle_per_temporal_bin == 0) = NUMBER_OF_ANGLE_BINS;
@@ -295,19 +320,21 @@ index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle
 
 scatter(reduced_data(:, 2), reduced_data(:, 3), 5, cmap3(index_of_visualization_angle_per_temporal_bin, :), 'fill');
 
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
+set(gca, 'ytick', [-0.01 0 0.01]);
 
 xlabel('Comp. 1');
 ylabel('Comp. 2');
+
+xlim(PANEL_A_XLIM);
+ylim(PANEL_A_YLIM);
 
 % Mouse28-140313 all wake unfiltered
 %xlim([-0.012 0.015]);
 %ylim([-0.013 0.014]);
 
 % Mouse28-140313 all wake filtered
-xlim([-0.015 0.012]);
-ylim([-0.012 0.015]);
+%xlim([-0.015 0.012]);
+%ylim([-0.012 0.015]);
 
 % Panel H - Estimated clustered angle over reduced data
 
@@ -322,19 +349,21 @@ index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle
 
 scatter(reduced_data(:, 2), reduced_data(:, 3), 5, cmap3(index_of_visualization_angle_per_temporal_bin, :), 'fill');
 
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
+set(gca, 'ytick', [-0.01 0 0.01]);
 
 xlabel('Comp. 1');
 ylabel('Comp. 2');
+
+xlim(PANEL_A_XLIM);
+ylim(PANEL_A_YLIM);
 
 % Mouse28-140313 all wake unfiltered
 %xlim([-0.012 0.015]);
 %ylim([-0.013 0.014]);
 
 % Mouse28-140313 all wake filtered
-xlim([-0.015 0.012]);
-ylim([-0.012 0.015]);
+%xlim([-0.015 0.012]);
+%ylim([-0.012 0.015]);
 
 % Panel G - scattering of clustering tuning curve versus actual tuning curve
 axes('position', [grid_1_x grid_2_y * 1.03 x_size1 y_size1]);
@@ -354,19 +383,15 @@ for neuron_index = 1:number_of_neurons
     neuron_clustering_preferred_angle(neuron_index) = angle(sum(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_CLUSTERING_ANGLE_BINS)));
 end
 
-% Used to get the slope to be positive (bottom left of figure to upper
-% right)
-%corrected_neuron_clustering_preferred_angle = mod(SLOPE_MULTIPLIER * (neuron_clustering_preferred_angle - ACTUAL_VERSUS_CLUSTERING_SHIFT), 2 * pi);
 corrected_neuron_clustering_preferred_angle = mod(SLOPE_MULTIPLIER * (neuron_clustering_preferred_angle + CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT), 2 * pi);
 
 head_direction_neurons_indices = find_head_direction_neurons(spike_rate_mat_neuron_by_angle);
 
 hold on;
-box on;
 
 plot([0 2 * pi], [0 2 * pi], 'r-');
-scatter(corrected_neuron_clustering_preferred_angle, mod(neuron_actual_preferred_angle, 2 * pi), 10, 'b');
-scatter(corrected_neuron_clustering_preferred_angle(head_direction_neurons_indices), mod(neuron_actual_preferred_angle(head_direction_neurons_indices), 2 * pi), 10, 'fill', 'b');
+h1 = scatter(corrected_neuron_clustering_preferred_angle, mod(neuron_actual_preferred_angle, 2 * pi), 10, 'k');
+h2 = scatter(corrected_neuron_clustering_preferred_angle(head_direction_neurons_indices), mod(neuron_actual_preferred_angle(head_direction_neurons_indices), 2 * pi), 10, 'fill', 'k');
 
 axis equal;
 
@@ -375,6 +400,10 @@ ylim([0 2 * pi]);
 
 xlabel('Internal preferred direction (rad)', 'FontSize', 8);
 ylabel('Preferred HD (rad)', 'FontSize', 8);
+
+l = legend([h1 h2], 'Non-HD cells', 'HD cells', 'location', 'northwest', 'orientation','horizontal');
+set(l, 'position', get(l, 'position') + [-0.06 0.035 0 0]);
+legend boxoff;
 
 % Panel H2 - same as above for Reighly vector length
 axes('position',  [grid_2_x grid_2_y * 1.03 x_size1 y_size1]);
@@ -394,14 +423,11 @@ for neuron_index = 1:number_of_neurons
     neuron_clustering_vector_length(neuron_index) = abs(sum(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_CLUSTERING_ANGLE_BINS))) ./ sum(abs(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_CLUSTERING_ANGLE_BINS)));
 end
 
-%figure;
 hold on;
-box on;
 
 plot([0 2 * pi], [0 2 * pi], 'r-');
-scatter(neuron_clustering_vector_length, neuron_actual_vector_length, 10, 'b');
-scatter(neuron_clustering_vector_length(head_direction_neurons_indices), neuron_actual_vector_length(head_direction_neurons_indices), 10, 'fill', 'b');
-
+h1 = scatter(neuron_clustering_vector_length, neuron_actual_vector_length, 10, 'k');
+h2 = scatter(neuron_clustering_vector_length(head_direction_neurons_indices), neuron_actual_vector_length(head_direction_neurons_indices), 10, 'fill', 'k');
 axis equal;
 
 xlim([0 1]);
@@ -410,12 +436,18 @@ ylim([0 1]);
 xlabel('Internal vector length', 'FontSize', 8);
 ylabel('HD vector length', 'FontSize', 8);
 
+l = legend([h1 h2], 'Non-HD cells', 'HD cells', 'location', 'northwest', 'orientation','horizontal');
+set(l, 'position', get(l, 'position') + [-0.06 0.035 0 0]);
+legend boxoff;
 
 % Panel I - results accuracy plot
 axes('position', [grid_3_x grid_2_y * 1.03 x_size1 y_size1]);
 
-colormap jet;
 bar(CENTER_OF_HISTOGRAM_BINS, hist_mat', 'stacked');
+
+l = legend('HD cells', 'Non-HD cells', 'location', 'northwest', 'orientation','horizontal');
+set(l, 'position', get(l, 'position') + [-0.06 0.035 0 0]);
+legend boxoff;
 
 xlabel('Correlation');
 ylabel('Count');
@@ -434,37 +466,27 @@ diff_RepAndPermData=(sum(diff_RepAndPermData.^2,3)).^0.5;
 diff_RepAndPermData(~~eye(NumOfDataPoints))=NaN;
 
 [a b]=hist(diff_RepAndPermData(:),1000);
-[~,start_bin_ind]=min(abs(b-start_value))
+[~,start_bin_ind]=min(abs(b-start_value));
 [~,end_bin_ind]=min(abs(b-end_value));
-%plot(start_value*[1 1],[0 1.1*max(a)],'r-')
-%plot(end_value*[1 1],[0 1.1*max(a)],'r-')
-%ylim([0 1.1*max(a)])
-
-%figure, plot(b,cumsum(a),'*')
-
-%figure(402)
-%plot(log(b),log(cumsum(a)),'r*')
-%hold on
-% plot([log(b(end))-10 log(b(end))],[log(sum(a))-10 log(sum(a))],'r-')
-% plot([log(b(end))-10 log(b(end))],[log(sum(a))-20 log(sum(a))],'r-')
 
 vy=cumsum(a(start_bin_ind:end));
 vx=b(start_bin_ind:end)-b(start_bin_ind-1);
 relevant_ind=1:(end_bin_ind-start_bin_ind+1);
-hold on
-plot(log(vx(relevant_ind)),log(vy(relevant_ind)),'r.')
-plot(log(vx(relevant_ind(end)+1:end)),log(vy(relevant_ind(end)+1:end)),'r-')
+hold on;
 for run1=6:30
-    plot([-11 -1],run1+1*[-11 -1],'-','color',slope_one_color)
+    h1 = plot([-11 -1],run1+1*[-11 -1], 'r-');
 end
-% for run2=8:38
-%     plot([-11 -1],run2+2*[-11 -1],'-r')
-% end
+% Use the handles for the legend
+h2 = plot(log(vx(relevant_ind)), log(vy(relevant_ind)), 'k.');
+h3 = plot(log(vx(relevant_ind(end)+1:end)), log(vy(relevant_ind(end)+1:end)), 'k-');
+
+legend([h1 h3], 'slope 1', 'data', 'location', 'northwest');
+
 xlim([-11 -2])
 ylim([4 20])
 
 xlabel('Log radius');
-ylabel('Log (cum)number of neighbors');
+ylabel('Log number of neighbors');
 
 
 % Panel J - persistent topology
@@ -479,13 +501,15 @@ for i = 1:number_of_results
         plot([dimension_0(i, 1) dimension_0(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
     end
 end
-% TODO: Magic number at the moment
 xlim([0 MAX_FILTRATION_VALUE]);
 
 set(gca, 'xticklabel', []);
 set(gca, 'yticklabel', []);
 
 xlabel('Radius');
+ylabel('Index');
+
+title('\beta_0 (components)');
 
 axes('position', [grid_2_x grid_1_y x_size1 y_size1]);
 hold on;
@@ -504,6 +528,9 @@ set(gca, 'xticklabel', []);
 set(gca, 'yticklabel', []);
 
 xlabel('Radius');
+ylabel('Index');
+
+title('\beta_1 (holes)');
 
 axes('position', [grid_3_x grid_1_y x_size1 y_size1]);
 hold on;
@@ -513,15 +540,24 @@ set(gca, 'xticklabel', []);
 set(gca, 'yticklabel', []);
 
 xlabel('Radius');
+ylabel('Index');
 
-axes('position', [grid_4_x grid_1_y x_size1 y_size1]);
+title('\beta_2 (spaces)');
 
-scatter(reduced_data_rem_all(:, 2), reduced_data_rem_all(:, 3), 5, cmap2(index_of_visualization_angle_per_temporal_bin_rem_all, :), 'fill');
+if strcmp(TYPE, 'wake')
+    axes('position', [grid_4_x grid_1_y x_size1 y_size1]);
 
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
+    scatter(reduced_data_rem_all(:, 2), reduced_data_rem_all(:, 3), 5, cmap2(index_of_visualization_angle_per_temporal_bin_rem_all, :), 'fill');
 
-xlabel('Comp. 1');
-ylabel('Comp. 2');
+    set(gca, 'ytick', [-0.01 0 0.01]);
 
+    xlabel('Comp. 1');
+    ylabel('Comp. 2');
+    
+    xlim([-0.018 0.017]);
+    ylim([-0.016 0.019]);
+end
+    
 colormap gray;
+
+set(gcf,'PaperPositionMode','auto');
