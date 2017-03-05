@@ -2,8 +2,8 @@
 
 constants;
 
-TYPE = 'wake';
-FILTERED = false;
+TYPE = 'rem';
+FILTERED = true;
 
 
 % Example neurons for panel G for Mouse28-140313 thalamus wake
@@ -30,7 +30,7 @@ if strcmp(TYPE, 'wake') && FILTERED == false
     % 
     % no direction:
     % 62
-    EXAMPLE_NEURONS = [43 45 47 62 46 56 55 61];
+    EXAMPLE_NEURONS = [43 45 47 62 55 56 46 61];
     
     PANEL_A_XLIM = [-0.012 0.015];
     PANEL_A_YLIM = [-0.013 0.014];
@@ -48,7 +48,7 @@ elseif strcmp(TYPE, 'rem') && FILTERED == true
     CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = -0.3 * pi;
     
     % Mouse28-140313 all rem
-    EXAMPLE_NEURONS = [44 45 57 62 59 46 55 60];
+    EXAMPLE_NEURONS = [46 45 57 62 59 44 55 24];
 
     PANEL_A_XLIM = [-0.018 0.017];
     PANEL_A_YLIM = [-0.016 0.019];
@@ -111,7 +111,7 @@ index_of_visualization_angle_per_temporal_bin(index_of_visualization_angle_per_t
 % Color the missing values in black
 index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle_per_temporal_bin)) = NUMBER_OF_ANGLE_BINS + 1;
 
-scatter(reduced_data(:, 2), reduced_data(:, 3), 5, 'fill', 'k');
+scatter(reduced_data(:, 2), reduced_data(:, 3), 1, 'fill', 'k');
 
 set(gca, 'ytick', [-0.01 0 0.01]);
 
@@ -121,41 +121,9 @@ ylabel('Comp. 2');
 xlim(PANEL_A_XLIM);
 ylim(PANEL_A_YLIM);
 
-
-% Panel B - ordered transition matrix
-axes('position', [grid_2_x * 0.94 grid_5_y x_size1 y_size1]);
-
-imagesc(imcomplement(transition_mat(chosen_shuffle, chosen_shuffle)));
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
-
-xlabel('Cluster (t+1)');
-ylabel('Cluster (t)');
-
-% Panel B - colorbar
-axes('position', [grid_2_x * 0.95 + x_size1 + 0.01 grid_5_y x_size2 y_size2], 'YAxisLocation', 'right');
+% Panel B - plot averaged clustered data 
+axes('position', [grid_2_x grid_5_y x_size1 y_size1]);
 hold on;
-
-cmap_jet=1-colormap('gray');
-num_colors=size(cmap_jet,1);
-set(gca,'xtick',[])
-%set(gca,'ytick',[])
-xlim([0 1])
-ylim([0 1])
-for n=1:num_colors
-    p=patch([0 1 1 0],[n/num_colors n/num_colors (n-1)/num_colors (n-1)/num_colors],cmap_jet(n,:));
-    set(p,'FaceAlpha',1,'EdgeColor','none');
-end
-
-plot([0 1 1 0 0], [0 0 1 1 0], 'k-');
-set(gca,'ytick',[0 1])
-set(gca, 'yticklabel', [0 1]);
-
-y = ylabel('Transition probability');
-set(y, 'Units', 'Normalized', 'Position', [2, 0.5, 0]);
-
-% Panel C - plot averaged clustered data 
-axes('position', [grid_3_x * 1.05 grid_5_y x_size1 y_size1]);
 
 % (in order to compare with the transition graph)
 
@@ -174,7 +142,8 @@ for cluster_index = 1:NUMBER_OF_CLUSTERS
     average_cluster_point(cluster_index, :) = mean(reduced_data(cluster_indices, 2:3));
 end
 
-scatter(average_cluster_point(:, 1), average_cluster_point(:, 2), 100, clusters_cmap, 'fill');
+scatter(reduced_data(:, 2), reduced_data(:, 3), 1, 'fill', 'k', 'MarkerFaceAlpha', 0.05, 'MarkerEdgeAlpha', 0.05);
+scatter(average_cluster_point(:, 1), average_cluster_point(:, 2), 100, clusters_cmap, 'fill', 'MarkerFaceAlpha', 0.7, 'MarkerEdgeAlpha', 0.7);
 
 set(gca, 'ytick', [-0.01 0 0.01]);
 
@@ -199,6 +168,37 @@ ylim(PANEL_A_YLIM);
 
 xlabel('Comp. 1');
 ylabel('Comp. 2');
+
+% Panel C - ordered transition matrix
+axes('position', [grid_3_x * 0.94 grid_5_y x_size1 y_size1]);
+
+imagesc(imcomplement(transition_mat(chosen_shuffle, chosen_shuffle)));
+set(gca, 'xticklabel', []);
+set(gca, 'yticklabel', []);
+
+xlabel('Cluster (t+1)');
+ylabel('Cluster (t)');
+
+% Panel C - colorbar
+axes('position', [grid_3_x * 0.95 + x_size1 + 0.01 grid_5_y x_size2 y_size2], 'YAxisLocation', 'right');
+hold on;
+
+cmap_jet=1-colormap('gray');
+num_colors=size(cmap_jet,1);
+set(gca,'xtick',[])
+xlim([0 1])
+ylim([0 1])
+for n=1:num_colors
+    p=patch([0 1 1 0],[n/num_colors n/num_colors (n-1)/num_colors (n-1)/num_colors],cmap_jet(n,:));
+    set(p,'FaceAlpha',1,'EdgeColor','none');
+end
+
+plot([0 1 1 0 0], [0 0 1 1 0], 'k-');
+set(gca,'ytick',[0 1])
+set(gca, 'yticklabel', [0 1]);
+
+y = ylabel('Transition probability');
+set(y, 'Units', 'Normalized', 'Position', [2.5, 0.5, 0]);
 
 % Panel D - plot transition probability graph
 axes('position', [grid_4_x grid_5_y x_size1 y_size1]);
@@ -250,7 +250,7 @@ ylabel('Comp. 2');
 
 
 % Panel E - trajectory of actual head movement versus clustered movement
-axes('position', [grid_1_x grid_4_y x_size1 * 2 + x_spacing - x_size1 y_size1]);
+axes('position', [grid_1_x grid_4_y * 0.98 x_size1 * 2 + x_spacing - x_size1 y_size1]);
 
 hold on;
 
@@ -276,21 +276,44 @@ ylabel('Angle (rad)');
 
 if strcmp(TYPE, 'wake')
     l = legend('Head direction', 'Internal direction', 'Location', 'northwest', 'orientation','horizontal');
-    set(l, 'position', get(l, 'position') + [-0.01 0.035 0 0]);
+    set(l, 'position', get(l, 'position') + [-0.03 0.033 0 0]);
+    set(l, 'fontsize', 8);
 elseif strcmp(TYPE, 'rem')
-    legend('Estimated HD', 'Internal direction', 'Location', 'northwest', 'orientation','horizontal');
+    l = legend('Estimated HD', 'Internal direction', 'Location', 'northwest', 'orientation','horizontal');
+    set(l, 'position', get(l, 'position') + [-0.03 0.033 0 0]);
+    set(l, 'fontsize', 8);
 else
     warning('Unknown type!')
 end
 
+legend boxoff;
+
 % Panel E (insert) - estimated head direction as decoder's output vs
 % smoothed estimated angle by clustering
-axes('position', [grid_2_x + x_size1 * 0.37 grid_4_y + y_size1 * 0.37 x_size_insert y_size_insert]);
+axes('position', [grid_2_x + x_size1 * 0.37 grid_4_y + y_size1 * 0.25 x_size_insert y_size_insert]);
 scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1, 'k.');
 xlim([0 2 * pi]);
 ylim([0 2 * pi]);
-set(gca, 'XTickLabel', []);
-set(gca, 'YTickLabel', []);
+
+%set(l, 'Position', get(l, 'Position') + [0 3 0]);
+%set(l, 'Position', get(l, 'Position') + [3 0 0]);
+
+set(gca, 'xtick', [0 2 * pi]);
+set(gca, 'ytick', [0 2 * pi]);
+set(gca, 'XTickLabel', {'0', ''});
+set(gca, 'YTickLabel', {'0', ''});
+text(7.6, 7.6, '2\pi', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'top', 'fontsize', 8);
+set(gca,'xaxisLocation', 'top');
+set(gca,'yaxisLocation', 'right');
+if strcmp(TYPE, 'wake')
+    l = xlabel('Head direction');
+else
+    l = xlabel('Estimated HD');
+end
+set(l, 'position', get(l, 'position') + [0 -0.05 0]);
+l = ylabel('Internal direction');
+set(l, 'position', get(l, 'position') + [-0.05 0 0]);
+
 box;
 
 % Panel F - trajectory of actual head movement versus clustered movement
@@ -318,7 +341,7 @@ index_of_visualization_angle_per_temporal_bin(index_of_visualization_angle_per_t
 % Color the missing values in black
 index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle_per_temporal_bin)) = NUMBER_OF_ANGLE_BINS + 1;
 
-scatter(reduced_data(:, 2), reduced_data(:, 3), 5, cmap3(index_of_visualization_angle_per_temporal_bin, :), 'fill');
+scatter(reduced_data(:, 2), reduced_data(:, 3), 1, cmap3(index_of_visualization_angle_per_temporal_bin, :), 'fill');
 
 set(gca, 'ytick', [-0.01 0 0.01]);
 
@@ -347,7 +370,7 @@ index_of_visualization_angle_per_temporal_bin(index_of_visualization_angle_per_t
 % Color the missing values in black
 index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle_per_temporal_bin)) = NUMBER_OF_ANGLE_BINS + 1;
 
-scatter(reduced_data(:, 2), reduced_data(:, 3), 5, cmap3(index_of_visualization_angle_per_temporal_bin, :), 'fill');
+scatter(reduced_data(:, 2), reduced_data(:, 3), 1, cmap3(index_of_visualization_angle_per_temporal_bin, :), 'fill');
 
 set(gca, 'ytick', [-0.01 0 0.01]);
 
@@ -443,9 +466,9 @@ legend boxoff;
 % Panel I - results accuracy plot
 axes('position', [grid_3_x grid_2_y * 1.03 x_size1 y_size1]);
 
-bar(CENTER_OF_HISTOGRAM_BINS, hist_mat', 'stacked');
+b = bar(CENTER_OF_HISTOGRAM_BINS, hist_mat', 'stacked');
 
-l = legend('HD cells', 'Non-HD cells', 'location', 'northwest', 'orientation','horizontal');
+l = legend([b(2) b(1)], 'Non-HD cells', 'HD cells', 'location', 'northwest', 'orientation','horizontal');
 set(l, 'position', get(l, 'position') + [-0.06 0.035 0 0]);
 legend boxoff;
 
@@ -474,11 +497,11 @@ vx=b(start_bin_ind:end)-b(start_bin_ind-1);
 relevant_ind=1:(end_bin_ind-start_bin_ind+1);
 hold on;
 for run1=6:30
-    h1 = plot([-11 -1],run1+1*[-11 -1], 'r-');
+    h1 = plot([-11 -1],run1+1*[-11 -1], '-', 'color', [0.5 0.5 0.5]);
 end
 % Use the handles for the legend
-h2 = plot(log(vx(relevant_ind)), log(vy(relevant_ind)), 'k.');
-h3 = plot(log(vx(relevant_ind(end)+1:end)), log(vy(relevant_ind(end)+1:end)), 'k-');
+h2 = plot(log(vx(relevant_ind)), log(vy(relevant_ind)), 'r.');
+h3 = plot(log(vx(relevant_ind(end)+1:end)), log(vy(relevant_ind(end)+1:end)), 'r-');
 
 legend([h1 h3], 'slope 1', 'data', 'location', 'northwest');
 
@@ -547,7 +570,7 @@ title('\beta_2 (spaces)');
 if strcmp(TYPE, 'wake')
     axes('position', [grid_4_x grid_1_y x_size1 y_size1]);
 
-    scatter(reduced_data_rem_all(:, 2), reduced_data_rem_all(:, 3), 5, cmap2(index_of_visualization_angle_per_temporal_bin_rem_all, :), 'fill');
+    scatter(reduced_data_rem_all(:, 2), reduced_data_rem_all(:, 3), 1, cmap2(index_of_visualization_angle_per_temporal_bin_rem_all, :), 'fill');
 
     set(gca, 'ytick', [-0.01 0 0.01]);
 
