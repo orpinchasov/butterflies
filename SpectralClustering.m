@@ -1,4 +1,4 @@
-function [C, L, U] = SpectralClustering(W, k, Type)
+function [C, centers, L, U] = SpectralClustering(W, k, Type)
 %SPECTRALCLUSTERING Executes spectral clustering algorithm
 %   Executes the spectral clustering algorithm defined by
 %   Type on the adjacency matrix W and returns the k cluster
@@ -63,7 +63,7 @@ end
 % now use the k-means algorithm to cluster U row-wise
 % C will be a n-by-1 matrix containing the cluster number for
 % each data point
-C = kmeans(U, k, 'start', 'cluster', ...
+[C, centers] = kmeans(U, k, 'start', 'cluster', ...
                  'EmptyAction', 'singleton');
              
 % now convert C to a n-by-k matrix containing the k indicator
