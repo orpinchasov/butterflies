@@ -296,9 +296,11 @@ legend boxoff;
 % Panel E (insert) - estimated head direction as decoder's output vs
 % smoothed estimated angle by clustering
 axes('position', [grid_2_x + x_size1 * 0.37 grid_4_y + y_size1 * 0.25 x_size_insert y_size_insert]);
-scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1, 'k.');
-xlim([0 2 * pi]);
-ylim([0 2 * pi]);
+%scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1, 'k.');
+diffs = estimated_head_direction_angle_per_sample_index - smoothed_estimated_angle_by_clustering;
+histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1);
+xlim([-pi pi]);
+%ylim([0 2 * pi]);
 
 %set(l, 'Position', get(l, 'Position') + [0 3 0]);
 %set(l, 'Position', get(l, 'Position') + [3 0 0]);

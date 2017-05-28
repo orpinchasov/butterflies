@@ -68,7 +68,7 @@ end
 %% Get data ready
 
 %point_cloud = reduced_data(all_indices, 2:3);
-point_cloud = centers(~(counts < 100), :);
+point_cloud = centers(~(counts < 50), :);
 %point_cloud = pointsTorusGrid;
 
 %%
