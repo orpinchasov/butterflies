@@ -2,7 +2,7 @@
 
 constants;
 
-TYPE = 'rem';
+TYPE = 'wake';
 FILTERED = true;
 
 
@@ -43,6 +43,11 @@ elseif strcmp(TYPE, 'wake') && FILTERED == true
     
     PANEL_A_XLIM = [-0.015 0.012];
     PANEL_A_YLIM = [-0.012 0.015];
+
+    PANEL_D_XLIM = [-0.8 0.8];
+    PANEL_D_YLIM = [-0.6 1.0];
+    
+    EXAMPLE_NEURONS = [43 45 47 62 55 56 46 61];
 elseif strcmp(TYPE, 'rem') && FILTERED == false
     SLOPE_MULTIPLIER = 1;
     CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = -1.1 * pi;
@@ -283,11 +288,18 @@ xlim([2000 6000]);
 ticks = get(gca,'XTick');
 set(gca, 'XTickLabel', cellstr(num2str(round(ticks / 10)')));
 
-xlabel('Sample');
+xlabel('Time (samples)');
 ylabel('Angle (rad)');
 
 if strcmp(TYPE, 'wake')
-    l = legend('Head direction', 'Internal direction', 'Location', 'northwest', 'orientation','horizontal');
+    [l,l2,l3,l4]=legend('Head direction', 'Internal direction', 'Location', 'northwest', 'orientation','horizontal');
+
+    for n=1:length(l2)
+        if sum(strcmp(properties(l2(n)),'MarkerSize'))
+            l2(n).MarkerSize=20;
+        end
+    end
+    
     set(l, 'position', get(l, 'position') + [-0.03 0.033 0 0]);
     set(l, 'fontsize', 8);
 elseif strcmp(TYPE, 'rem')
@@ -300,37 +312,26 @@ end
 
 legend boxoff;
 
-% Panel E (insert) - estimated head direction as decoder's output vs
+% Panel E (inset) - estimated head direction as decoder's output vs
 % smoothed estimated angle by clustering
 axes('position', [grid_2_x + x_size1 * 0.37 grid_4_y + y_size1 * 0.25 x_size_insert y_size_insert]);
-%scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1, 'k.');
-%xlim([0 2 * pi]);
-%ylim([0 2 * pi]);
 scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1, 'k.');
 diffs = estimated_head_direction_angle_per_sample_index - smoothed_estimated_angle_by_clustering;
-histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1);
+histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 30, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1, 'normalization', 'pdf');
 xlim([-pi pi]);
-%ylim([0 2 * pi]);
+ylim([0 1]);
 
-
-%set(l, 'Position', get(l, 'Position') + [0 3 0]);
-%set(l, 'Position', get(l, 'Position') + [3 0 0]);
-
-set(gca, 'xtick', [0 2 * pi]);
-set(gca, 'ytick', [0 2 * pi]);
-set(gca, 'XTickLabel', {'0', ''});
-set(gca, 'YTickLabel', {'0', ''});
+set(gca, 'xtick', [-pi pi]);
+set(gca, 'XTickLabel', {'-\pi', '\pi'});
+set(gca, 'ytick', [0 1]);
+set(gca, 'yTickLabel', {'0', '1'});
 text(7.6, 7.6, '2\pi', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'top', 'fontsize', 8);
 set(gca,'xaxisLocation', 'top');
 set(gca,'yaxisLocation', 'right');
-if strcmp(TYPE, 'wake')
-    l = xlabel('Head direction');
-else
-    l = xlabel('Estimated HD');
-end
+l = xlabel('Decoder error (rad)');
 set(l, 'position', get(l, 'position') + [0 -0.05 0]);
-l = ylabel('Internal direction');
-set(l, 'position', get(l, 'position') + [-0.05 0 0]);
+l = ylabel('Fraction');
+set(l, 'position', get(l, 'position') + [-0.03 0 0]);
 
 box;
 
@@ -363,6 +364,8 @@ scatter(reduced_data(:, 2), reduced_data(:, 3), 1, cmap3(index_of_visualization_
 
 set(gca, 'ytick', [-0.01 0 0.01]);
 
+title('Head direction');
+
 xlabel('Comp. 1');
 ylabel('Comp. 2');
 
@@ -391,6 +394,8 @@ index_of_visualization_angle_per_temporal_bin(isnan(index_of_visualization_angle
 scatter(reduced_data(:, 2), reduced_data(:, 3), 1, cmap3(index_of_visualization_angle_per_temporal_bin, :), 'fill');
 
 set(gca, 'ytick', [-0.01 0 0.01]);
+
+title('Internal direction');
 
 xlabel('Comp. 1');
 ylabel('Comp. 2');
@@ -493,6 +498,8 @@ legend boxoff;
 xlabel('Correlation');
 ylabel('Count');
 
+box off;
+
 % Panel J - dimension estimation
 axes('position', [grid_4_x grid_2_y * 1.03 x_size1 y_size1]);
 start_value=0.004;
@@ -530,73 +537,135 @@ xlabel('Log radius');
 ylabel('Log number of neighbors');
 
 
-% Panel J - persistent topology
-axes('position', [grid_1_x grid_1_y x_size1 y_size1]);
-hold on;
-number_of_results = size(dimension_0, 1);
-ylim([0 number_of_results + 1]);
-for i = 1:number_of_results
-    if dimension_0(i, 2) == Inf
-        plot([dimension_0(i, 1) MAX_FILTRATION_VALUE], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
-    else
-        plot([dimension_0(i, 1) dimension_0(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
-    end
-end
-xlim([0 MAX_FILTRATION_VALUE]);
-
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
-
-xlabel('Radius');
-ylabel('Index');
-
-title('\beta_0 (components)');
-
-axes('position', [grid_2_x grid_1_y x_size1 y_size1]);
-hold on;
-number_of_results = size(dimension_1, 1);
-ylim([0 number_of_results + 1]);
-for i = 1:number_of_results
-    if dimension_1(i, 2) == Inf
-        plot([dimension_1(i, 1) MAX_FILTRATION_VALUE], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
-    else
-        plot([dimension_1(i, 1) dimension_1(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
-    end
-end
-xlim([0 MAX_FILTRATION_VALUE]);
-
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
-
-xlabel('Radius');
-ylabel('Index');
-
-title('\beta_1 (holes)');
-
-axes('position', [grid_3_x grid_1_y x_size1 y_size1]);
-hold on;
-xlim([0 MAX_FILTRATION_VALUE]);
-
-set(gca, 'xticklabel', []);
-set(gca, 'yticklabel', []);
-
-xlabel('Radius');
-ylabel('Index');
-
-title('\beta_2 (spaces)');
-
 if strcmp(TYPE, 'wake')
-    axes('position', [grid_4_x grid_1_y x_size1 y_size1]);
+    axes('position', [grid_1_x grid_1_y x_size1 y_size1]);
 
-    scatter(reduced_data_rem_all(:, 2), reduced_data_rem_all(:, 3), 1, cmap2(index_of_visualization_angle_per_temporal_bin_rem_all, :), 'fill');
+    scatter(reduced_data_rem_all(:, 2), reduced_data_rem_all(:, 3), 1, '.k');
 
     set(gca, 'ytick', [-0.01 0 0.01]);
 
     xlabel('Comp. 1');
     ylabel('Comp. 2');
     
+    title('REM sleep');
+    
     xlim([-0.018 0.017]);
     ylim([-0.016 0.019]);
+    
+    firing_rate_rem = load('firing_rate_rem.mat');
+    firing_rate_rem = firing_rate_rem.firing_rate;
+
+    
+    axes('position', [grid_2_x grid_1_y * 0.98 x_size1 * 2 + x_spacing - x_size1 y_size1]);
+    hold on;
+    % Plot the actual head direction from wake data
+    plot(filtered_angle_per_temporal_bin, 'k.');
+
+    % Plot the estimated head direction using the rem tuning curves and the
+    % filtered full neuron firing per per, which matches the filtered angle.
+    smooth_maximum_likelihood_angle_per_sample_index = estimate_head_direction(firing_rate_rem, filtered_full_neuron_firing_per_bin);
+
+    plot(smooth_maximum_likelihood_angle_per_sample_index, 'r.');
+
+    ylim([0 2 * pi]);
+    xlim([2000 6000]);
+    
+    % This is stupid
+    ticks = get(gca,'XTick');
+    set(gca, 'XTickLabel', cellstr(num2str(round(ticks / 10)')));
+
+    xlabel('Time (samples)');
+    ylabel('Angle (rad)');
+
+    if strcmp(TYPE, 'wake')
+        [l,l2,l3,l4]=legend('Head direction', 'Decoded direction', 'Location', 'northwest', 'orientation','horizontal');
+
+        for n=1:length(l2)
+            if sum(strcmp(properties(l2(n)),'MarkerSize'))
+                l2(n).MarkerSize=20;
+            end
+        end
+
+        set(l, 'position', get(l, 'position') + [-0.03 0.033 0 0]);
+        set(l, 'fontsize', 8);
+    end
+
+    legend boxoff;
+    
+    axes('position', [grid_3_x + x_size1 * 0.37 grid_1_y + y_size1 * 0.35 x_size_insert y_size_insert]);
+    diffs = smooth_maximum_likelihood_angle_per_sample_index - filtered_angle_per_temporal_bin';
+    histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 30, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1, 'normalization', 'pdf');
+    xlim([-pi pi]);
+    ylim([0 1]);
+
+    set(gca, 'xtick', [-pi pi]);
+    set(gca, 'XTickLabel', {'-\pi', '\pi'});
+    set(gca, 'ytick', [0 1]);
+    set(gca, 'yTickLabel', {'0', '1'});
+    text(7.6, 7.6, '2\pi', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'top', 'fontsize', 8);
+    set(gca,'xaxisLocation', 'top');
+    set(gca,'yaxisLocation', 'right');
+    l = xlabel('Decoder error (rad)');
+    set(l, 'position', get(l, 'position') + [0 -0.05 0]);
+    l = ylabel('Fraction');
+    set(l, 'position', get(l, 'position') + [-0.03 0 0]);
+
+    box;
+else
+    % Panel J - persistent topology
+    axes('position', [grid_1_x grid_1_y x_size1 y_size1]);
+    hold on;
+    number_of_results = size(dimension_0, 1);
+    ylim([0 number_of_results + 1]);
+    for i = 1:number_of_results
+        if dimension_0(i, 2) == Inf
+            plot([dimension_0(i, 1) MAX_FILTRATION_VALUE], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
+        else
+            plot([dimension_0(i, 1) dimension_0(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
+        end
+    end
+    xlim([0 MAX_FILTRATION_VALUE]);
+
+    set(gca, 'xticklabel', []);
+    set(gca, 'yticklabel', []);
+
+    xlabel('Radius');
+    ylabel('Index');
+
+    title('\beta_0 (components)');
+
+    axes('position', [grid_2_x grid_1_y x_size1 y_size1]);
+    hold on;
+    number_of_results = size(dimension_1, 1);
+    ylim([0 number_of_results + 1]);
+    for i = 1:number_of_results
+        if dimension_1(i, 2) == Inf
+            plot([dimension_1(i, 1) MAX_FILTRATION_VALUE], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
+        else
+            plot([dimension_1(i, 1) dimension_1(i, 2)], [number_of_results + 1 - i number_of_results + 1 - i], 'b');
+        end
+    end
+    xlim([0 MAX_FILTRATION_VALUE]);
+
+    set(gca, 'xticklabel', []);
+    set(gca, 'yticklabel', []);
+
+    xlabel('Radius');
+    ylabel('Index');
+
+    title('\beta_1 (holes)');
+
+    axes('position', [grid_3_x grid_1_y x_size1 y_size1]);
+    hold on;
+    xlim([0 MAX_FILTRATION_VALUE]);
+
+    set(gca, 'xticklabel', []);
+    set(gca, 'yticklabel', []);
+
+    xlabel('Radius');
+    ylabel('Index');
+
+    title('\beta_2 (spaces)');
 end
     
 colormap gray;

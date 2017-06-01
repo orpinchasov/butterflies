@@ -62,6 +62,7 @@ function plot_polar_tuning_curve_by_axes( spike_rate_mat_neuron_by_angle, firing
         
         first = true;
         
-        spacing = 0.01;
+        % Set the spacing between the two columns of tuning curve pairs
+        spacing = 0.03;
     end
 end
