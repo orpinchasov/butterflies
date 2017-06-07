@@ -2,7 +2,7 @@
 
 constants;
 
-TYPE = 'rem';
+TYPE = 'wake';
 FILTERED = true;
 
 
@@ -13,8 +13,8 @@ FILTERED = true;
 NUMBER_OF_REDUCED_DIMENSIONS_FOR_PCA = 5;
 
 if strcmp(TYPE, 'wake')
-    load('reduced_data_rem_all');
-    load('index_of_visualization_angle_per_temporal_bin_rem_all');
+    a = load('reduced_data_rem_7_6.mat');
+    reduced_data_rem = a.reduced_data;
 end
 
 if strcmp(TYPE, 'wake') && FILTERED == false
@@ -325,7 +325,6 @@ set(gca, 'xtick', [-pi pi]);
 set(gca, 'XTickLabel', {'-\pi', '\pi'});
 set(gca, 'ytick', [0 1]);
 set(gca, 'yTickLabel', {'0', '1'});
-text(7.6, 7.6, '2\pi', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'top', 'fontsize', 8);
 set(gca,'xaxisLocation', 'top');
 set(gca,'yaxisLocation', 'right');
 l = xlabel('Decoder error (rad)');
@@ -540,7 +539,7 @@ ylabel('Log number of neighbors');
 if strcmp(TYPE, 'wake')
     axes('position', [grid_1_x grid_1_y x_size1 y_size1]);
 
-    scatter(reduced_data_rem_all(:, 2), reduced_data_rem_all(:, 3), 1, '.k');
+    scatter(reduced_data_rem(:, 2), reduced_data_rem(:, 3), 1, '.k');
 
     set(gca, 'ytick', [-0.01 0 0.01]);
 
@@ -552,7 +551,7 @@ if strcmp(TYPE, 'wake')
     xlim([-0.018 0.017]);
     ylim([-0.016 0.019]);
     
-    firing_rate_rem = load('firing_rate_rem.mat');
+    firing_rate_rem = load('firing_rate_rem_7_6.mat');
     firing_rate_rem = firing_rate_rem.firing_rate;
 
     
@@ -602,7 +601,6 @@ if strcmp(TYPE, 'wake')
     set(gca, 'XTickLabel', {'-\pi', '\pi'});
     set(gca, 'ytick', [0 1]);
     set(gca, 'yTickLabel', {'0', '1'});
-    text(7.6, 7.6, '2\pi', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'top', 'fontsize', 8);
     set(gca,'xaxisLocation', 'top');
     set(gca,'yaxisLocation', 'right');
     l = xlabel('Decoder error (rad)');

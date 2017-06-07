@@ -29,7 +29,7 @@ end
 average_cluster_data_points = zeros(NUMBER_OF_TOPOLOGY_CLUSTERS, 1);
 
 rng(0);
-[labels centers distances] = kmeans(reduced_data(:, 2:4), NUMBER_OF_TOPOLOGY_CLUSTERS, 'distance', 'correlation');
+[labels centers distances] = kmeans(reduced_data(:, 2:4), NUMBER_OF_TOPOLOGY_CLUSTERS);
 
 counts = histcounts(labels, 0.5:1:NUMBER_OF_TOPOLOGY_CLUSTERS + 0.5);
 

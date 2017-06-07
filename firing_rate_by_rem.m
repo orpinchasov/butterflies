@@ -1,4 +1,4 @@
-load('firing_rate_rem.mat');
+%load('firing_rate_rem.mat');
 
 figure;
 hold on;
