@@ -18,17 +18,17 @@ BRAIN_REGION = 5; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal
 % Various configurations for analysis
 MOVEMENT_THRESHOLD = 0.08;
 % For 'wake'
-NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
 % For 'wake' thalamus only
 %NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
 % For 'rem'
-%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
 
 NUMBER_OF_CLUSTERS = 8;
 CLUSTERING_DIMENSIONS = 2:7;
 
 % Wake all filtered
-ACTUAL_VERSUS_CLUSTERING_SHIFT = 2.75 * pi;
+%ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.5 * pi;
 
 % Wake all unfiltered
 %ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.4 * pi;
@@ -37,13 +37,13 @@ ACTUAL_VERSUS_CLUSTERING_SHIFT = 2.75 * pi;
 %ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.1 * pi;
 
 % REM all filtered
-%ACTUAL_VERSUS_CLUSTERING_SHIFT = 0.4 * pi;
+ACTUAL_VERSUS_CLUSTERING_SHIFT = 0.4 * pi;
 
 % Wake
-MIRROR_ORDERING = false;
+%MIRROR_ORDERING = true;
 
 % REM
-%MIRROR_ORDERING = true;
+MIRROR_ORDERING = false;
 
 % Derived constants
 CENTER_OF_CLUSTERING_ANGLE_BINS = 0.5 * (2 * pi) / NUMBER_OF_CLUSTERS:...
@@ -128,7 +128,7 @@ filtered_position_per_temporal_bin = position_per_temporal_bin(filter_mask)';
 
 %% Reduce data
 % Original P values
-P_NEIGHBORS_VEC = [0.075 / 30 0.075];
+P_NEIGHBORS_VEC = [0.075 / 20 0.075];
 NUMBER_OF_REDUCED_DIMENSIONS_VEC = [10 10];
     
 full_reduced_data = create_reduced_data(filtered_neuron_firing, P_NEIGHBORS_VEC, NUMBER_OF_REDUCED_DIMENSIONS_VEC);

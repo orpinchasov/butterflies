@@ -1,12 +1,12 @@
 %% Parameters
 % Clustering
-NUMBER_OF_TOPOLOGY_CLUSTERS = 50;
+NUMBER_OF_TOPOLOGY_CLUSTERS = 100;
 NUMBER_OF_SAMPLES_PER_CLUSTER = 10;
 TOTAL_NUMBER_OF_SAMPLES = 50;
 
 % Topology calculation
 MAX_DIMENSION = 3;
-MAX_FILTRATION_VALUE = 0.03;
+MAX_FILTRATION_VALUE = 0.02;
 %MAX_FILTRATION_VALUE = 0.9;
 NUM_DIVISIONS = 20;
 
@@ -29,7 +29,7 @@ end
 average_cluster_data_points = zeros(NUMBER_OF_TOPOLOGY_CLUSTERS, 1);
 
 rng(0);
-[labels centers] = kmeans(reduced_data(:, 2:4), NUMBER_OF_TOPOLOGY_CLUSTERS);
+[labels centers distances] = kmeans(reduced_data(:, 2:4), NUMBER_OF_TOPOLOGY_CLUSTERS, 'distance', 'correlation');
 
 counts = histcounts(labels, 0.5:1:NUMBER_OF_TOPOLOGY_CLUSTERS + 0.5);
 
@@ -68,7 +68,7 @@ end
 %% Get data ready
 
 %point_cloud = reduced_data(all_indices, 2:3);
-point_cloud = centers(~(counts < 50), :);
+point_cloud = centers(~(counts < 25), :);
 %point_cloud = pointsTorusGrid;
 
 %%
@@ -165,7 +165,7 @@ end
 dimension_0 = homology.barcodes.BarcodeUtility.getEndpoints(intervals, 0, false);
 dimension_1 = homology.barcodes.BarcodeUtility.getEndpoints(intervals, 1, false);
 
-if 0
+if 1
     figure;
     subplot(1, 3, 1);
     hold on;

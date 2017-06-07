@@ -2,7 +2,7 @@
 
 constants;
 
-TYPE = 'wake';
+TYPE = 'rem';
 FILTERED = true;
 
 
@@ -38,8 +38,8 @@ if strcmp(TYPE, 'wake') && FILTERED == false
     PANEL_D_XLIM = [-0.7 0.7];
     PANEL_D_YLIM = [-0.8 0.6];
 elseif strcmp(TYPE, 'wake') && FILTERED == true
-    SLOPE_MULTIPLIER = -1;
-    CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = 0.85 * pi;
+    SLOPE_MULTIPLIER = 1;
+    CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = 0.55 * pi;
     
     PANEL_A_XLIM = [-0.015 0.012];
     PANEL_A_YLIM = [-0.012 0.015];
@@ -61,13 +61,13 @@ elseif strcmp(TYPE, 'rem') && FILTERED == false
     PANEL_D_XLIM = [-0.7 0.7];
     PANEL_D_YLIM = [-0.8 0.6];
 elseif strcmp(TYPE, 'rem') && FILTERED == true
-    SLOPE_MULTIPLIER = 1;
-    CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = -0.3 * pi;
+    SLOPE_MULTIPLIER = -1;
+    CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = 0.4 * pi;
     
     % Mouse28-140313 all rem
     EXAMPLE_NEURONS = [46 45 57 62 59 44 55 24];
 
-    PANEL_A_XLIM = [-0.018 0.017];
+    PANEL_A_XLIM = [-0.019 0.016];
     PANEL_A_YLIM = [-0.016 0.019];
     
     PANEL_D_XLIM = [-0.7 0.7];
@@ -146,7 +146,7 @@ hold on;
 
 % The following mechanism allows rotating the color map to match that of
 % the reduced data.
-MIRROR = -1;
+MIRROR = 1;
 OFFSET = 3;
 
 angle_bins_cmap = hsv(NUMBER_OF_ANGLE_BINS);
@@ -282,7 +282,7 @@ end
 plot(smoothed_estimated_angle_by_clustering, 'r.');
 
 ylim([0 2 * pi]);
-xlim([2000 6000]);
+xlim([5000 9000]);
 
 % This is stupid
 ticks = get(gca,'XTick');
@@ -568,7 +568,7 @@ if strcmp(TYPE, 'wake')
     plot(smooth_maximum_likelihood_angle_per_sample_index, 'r.');
 
     ylim([0 2 * pi]);
-    xlim([2000 6000]);
+    xlim([5000 9000]);
     
     % This is stupid
     ticks = get(gca,'XTick');
