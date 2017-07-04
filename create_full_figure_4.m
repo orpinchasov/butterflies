@@ -317,28 +317,32 @@ legend boxoff;
 axes('position', [grid_2_x + x_size1 * 0.37 grid_4_y + y_size1 * 0.25 x_size_insert y_size_insert]);
 scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1, 'k.');
 diffs = estimated_head_direction_angle_per_sample_index - smoothed_estimated_angle_by_clustering;
-histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 30, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1, 'normalization', 'pdf');
+histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 30, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1, 'normalization', 'probability');
 xlim([-pi pi]);
-ylim([0 1]);
+if strcmp(TYPE, 'wake')
+    ylim([0 0.25]);
+end
 
 set(gca, 'xtick', [-pi pi]);
 set(gca, 'XTickLabel', {'-\pi', '\pi'});
-set(gca, 'ytick', [0 1]);
-set(gca, 'yTickLabel', {'0', '1'});
+if strcmp(TYPE, 'wake')
+    set(gca, 'ytick', [0 0.1 0.2 0.3]);
+end
+%set(gca, 'yTickLabel', {'0', '0.1', '0.2', '0.3'});
 set(gca,'xaxisLocation', 'top');
 set(gca,'yaxisLocation', 'right');
 l = xlabel('Decoder error (rad)');
-set(l, 'position', get(l, 'position') + [0 -0.05 0]);
+set(l, 'position', get(l, 'position') + [0 -0.01 0]);
 l = ylabel('Fraction');
 set(l, 'position', get(l, 'position') + [-0.03 0 0]);
 
-box;
+box on;
 
 % Panel F - trajectory of actual head movement versus clustered movement
 plot_polar_tuning_curve_by_axes(spike_rate_mat_neuron_by_angle, firing_rate, EXAMPLE_NEURONS, grid_3_x, grid_3_y * 0.93, 0.10, 0.09);
 
 % Panel G - actual angle per temporal bin over reduced data
-axes('position', [grid_1_x grid_3_y x_size1 y_size1]);
+axes('position', [grid_2_x grid_3_y x_size1 y_size1]);
 
 % Plot the angle on the reduced data
 cmap3 = hsv(NUMBER_OF_ANGLE_BINS);
@@ -381,7 +385,7 @@ ylim(PANEL_A_YLIM);
 
 % Panel H - Estimated clustered angle over reduced data
 
-axes('position', [grid_2_x grid_3_y x_size1 y_size1]);
+axes('position', [grid_1_x grid_3_y x_size1 y_size1]);
 
 visualization_angle_per_temporal_bin = smoothed_estimated_angle_by_clustering;
 
@@ -593,22 +597,22 @@ if strcmp(TYPE, 'wake')
     
     axes('position', [grid_3_x + x_size1 * 0.37 grid_1_y + y_size1 * 0.35 x_size_insert y_size_insert]);
     diffs = smooth_maximum_likelihood_angle_per_sample_index - filtered_angle_per_temporal_bin';
-    histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 30, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1, 'normalization', 'pdf');
+    histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 30, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1, 'normalization', 'probability');
     xlim([-pi pi]);
-    ylim([0 1]);
+    ylim([0 0.25]);
 
     set(gca, 'xtick', [-pi pi]);
     set(gca, 'XTickLabel', {'-\pi', '\pi'});
-    set(gca, 'ytick', [0 1]);
-    set(gca, 'yTickLabel', {'0', '1'});
+    set(gca, 'ytick', [0 0.1 0.2 0.3]);
+    %set(gca, 'yTickLabel', {'0', '0.1', '0.2', '0.3'});
     set(gca,'xaxisLocation', 'top');
     set(gca,'yaxisLocation', 'right');
     l = xlabel('Decoder error (rad)');
-    set(l, 'position', get(l, 'position') + [0 -0.05 0]);
+    set(l, 'position', get(l, 'position') + [0 -0.01 0]);
     l = ylabel('Fraction');
     set(l, 'position', get(l, 'position') + [-0.03 0 0]);
 
-    box;
+    box on;
 else
     % Panel J - persistent topology
     axes('position', [grid_1_x grid_1_y x_size1 y_size1]);

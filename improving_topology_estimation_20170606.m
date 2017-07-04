@@ -1,6 +1,6 @@
-load('reduced_data_rem_4_6.mat');
+load('reduced_data_rem_7_6.mat');
 persistent_topology;
-load('reduced_data_wake_4_6.mat');
+load('reduced_data_wake_7_6.mat');
 persistent_topology;
 
 %%

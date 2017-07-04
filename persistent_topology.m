@@ -1,6 +1,6 @@
 %% Parameters
 % Clustering
-NUMBER_OF_TOPOLOGY_CLUSTERS = 100;
+NUMBER_OF_TOPOLOGY_CLUSTERS = 70;
 NUMBER_OF_SAMPLES_PER_CLUSTER = 10;
 TOTAL_NUMBER_OF_SAMPLES = 50;
 
@@ -68,7 +68,7 @@ end
 %% Get data ready
 
 %point_cloud = reduced_data(all_indices, 2:3);
-point_cloud = centers(~(counts < 25), :);
+point_cloud = centers(~(counts < 50), :);
 %point_cloud = pointsTorusGrid;
 
 %%
