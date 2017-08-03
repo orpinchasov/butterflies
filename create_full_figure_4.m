@@ -2,7 +2,7 @@
 
 constants;
 
-TYPE = 'wake';
+TYPE = 'rem';
 FILTERED = true;
 
 
@@ -61,7 +61,7 @@ elseif strcmp(TYPE, 'rem') && FILTERED == false
     PANEL_D_XLIM = [-0.7 0.7];
     PANEL_D_YLIM = [-0.8 0.6];
 elseif strcmp(TYPE, 'rem') && FILTERED == true
-    SLOPE_MULTIPLIER = -1;
+    SLOPE_MULTIPLIER = 1;
     CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT = 0.4 * pi;
     
     % Mouse28-140313 all rem
@@ -427,12 +427,11 @@ for neuron_index = 1:number_of_neurons
 end
 
 for neuron_index = 1:number_of_neurons
-    current_neuron_spike_rate_by_angle = ordered_neuron_firing_rate(:, neuron_index)';
-
-    neuron_clustering_preferred_angle(neuron_index) = angle(sum(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_CLUSTERING_ANGLE_BINS)));
+    current_neuron_spike_rate_by_angle = firing_rate(neuron_index, :);
+    neuron_clustering_preferred_angle(neuron_index) = angle(sum(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_ANGLE_BINS)));
 end
 
-corrected_neuron_clustering_preferred_angle = mod(SLOPE_MULTIPLIER * (neuron_clustering_preferred_angle + CORRECTED_NEURON_PREFERRED_ANGLE_SHIFT), 2 * pi);
+corrected_neuron_clustering_preferred_angle = mod(SLOPE_MULTIPLIER * (neuron_clustering_preferred_angle), 2 * pi);
 
 head_direction_neurons_indices = find_head_direction_neurons(spike_rate_mat_neuron_by_angle);
 
@@ -467,9 +466,9 @@ for neuron_index = 1:number_of_neurons
 end
 
 for neuron_index = 1:number_of_neurons
-    current_neuron_spike_rate_by_angle = ordered_neuron_firing_rate(:, neuron_index)';
+    current_neuron_spike_rate_by_angle = firing_rate(neuron_index, :);
 
-    neuron_clustering_vector_length(neuron_index) = abs(sum(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_CLUSTERING_ANGLE_BINS))) ./ sum(abs(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_CLUSTERING_ANGLE_BINS)));
+    neuron_clustering_vector_length(neuron_index) = abs(sum(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_ANGLE_BINS))) ./ sum(abs(current_neuron_spike_rate_by_angle .* exp(1i * CENTER_OF_ANGLE_BINS)));
 end
 
 hold on;
