@@ -315,13 +315,26 @@ legend boxoff;
 % Panel E (inset) - estimated head direction as decoder's output vs
 % smoothed estimated angle by clustering
 axes('position', [grid_2_x + x_size1 * 0.37 grid_4_y + y_size1 * 0.25 x_size_insert y_size_insert]);
-scatter(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1, 'k.');
-diffs = estimated_head_direction_angle_per_sample_index - smoothed_estimated_angle_by_clustering;
+hold on;
+
+if strcmp(TYPE, 'wake')
+    diffs = filtered_angle_per_temporal_bin' - smoothed_estimated_angle_by_clustering;
+else
+    diffs = estimated_head_direction_angle_per_sample_index - smoothed_estimated_angle_by_clustering;
+end
 histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 30, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1, 'normalization', 'probability');
 xlim([-pi pi]);
 if strcmp(TYPE, 'wake')
     ylim([0 0.25]);
 end
+
+if strcmp(TYPE, 'wake')
+    [HeadDirectionDiff HeadDirectionDiffFreqOfShuffle] = ShuffleInternalVsExternalHeadDirection_Ver1(filtered_angle_per_temporal_bin, smoothed_estimated_angle_by_clustering', 1000, 30);
+else
+    [HeadDirectionDiff HeadDirectionDiffFreqOfShuffle] = ShuffleInternalVsExternalHeadDirection_Ver1(estimated_head_direction_angle_per_sample_index, smoothed_estimated_angle_by_clustering, 1000, 30);
+end
+
+plot(HeadDirectionDiff, HeadDirectionDiffFreqOfShuffle, 'color', [0 0.7 0], 'LineWidth', 1.5);
 
 set(gca, 'xtick', [-pi pi]);
 set(gca, 'XTickLabel', {'-\pi', '\pi'});
@@ -564,7 +577,7 @@ if strcmp(TYPE, 'wake')
     plot(filtered_angle_per_temporal_bin, 'k.');
 
     % Plot the estimated head direction using the rem tuning curves and the
-    % filtered full neuron firing per per, which matches the filtered angle.
+    % filtered full neuron firing per bin, which matches the filtered angle.
     smooth_maximum_likelihood_angle_per_sample_index = estimate_head_direction(firing_rate_rem, filtered_full_neuron_firing_per_bin);
 
     plot(smooth_maximum_likelihood_angle_per_sample_index, 'r.');
@@ -595,10 +608,15 @@ if strcmp(TYPE, 'wake')
     legend boxoff;
     
     axes('position', [grid_3_x + x_size1 * 0.37 grid_1_y + y_size1 * 0.35 x_size_insert y_size_insert]);
+    hold on;
+    
     diffs = smooth_maximum_likelihood_angle_per_sample_index - filtered_angle_per_temporal_bin';
     histogram(mod(diffs + 1 * pi, 2*pi) - 1 * pi, 30, 'FaceColor', 'k', 'EdgeColor', 'k', 'LineWidth', 1, 'normalization', 'probability');
     xlim([-pi pi]);
     ylim([0 0.25]);
+    
+    [HeadDirectionDiff REMHeadDirectionDiffFreqOfShuffle] = ShuffleInternalVsExternalHeadDirection_Ver1(filtered_angle_per_temporal_bin, smooth_maximum_likelihood_angle_per_sample_index', 1000, 30);
+    plot(HeadDirectionDiff, REMHeadDirectionDiffFreqOfShuffle, 'color', [0 0.7 0], 'LineWidth', 1.5);
 
     set(gca, 'xtick', [-pi pi]);
     set(gca, 'XTickLabel', {'-\pi', '\pi'});

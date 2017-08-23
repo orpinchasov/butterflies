@@ -11,24 +11,24 @@ constants
 %MOUSE_BY_DAY_NAME = 'Mouse12-120806';
 MOUSE_BY_DAY_NAME = 'Mouse28-140313';
 
-BEHAVIORAL_STATE = 'wake'; % 'wake', 'rem', 'sws'
+BEHAVIORAL_STATE = 'rem'; % 'wake', 'rem', 'sws'
 
 BRAIN_REGION = 5; % 1 - thalamus, 2 - subiculum, 3 - hippocampus, 4 - prefrontal, 5 - all
 
 % Various configurations for analysis
 MOVEMENT_THRESHOLD = 0.08;
 % For 'wake'
-NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
 % For 'wake' thalamus only
 %NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 0;
 % For 'rem'
-%NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
+NUMBER_OF_ACTIVE_NEURONS_THRESHOLD = 15;
 
 NUMBER_OF_CLUSTERS = 8;
 CLUSTERING_DIMENSIONS = 2:7;
 
 % Wake all filtered
-ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.5 * pi;
+%ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.5 * pi;
 
 % Wake all unfiltered
 %ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.4 * pi;
@@ -37,13 +37,13 @@ ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.5 * pi;
 %ACTUAL_VERSUS_CLUSTERING_SHIFT = 1.1 * pi;
 
 % REM all filtered
-%ACTUAL_VERSUS_CLUSTERING_SHIFT = 0.4 * pi;
+ACTUAL_VERSUS_CLUSTERING_SHIFT = 0.4 * pi;
 
 % Wake
-MIRROR_ORDERING = true;
+%MIRROR_ORDERING = true;
 
 % REM
-%MIRROR_ORDERING = false;
+MIRROR_ORDERING = false;
 
 % Derived constants
 CENTER_OF_CLUSTERING_ANGLE_BINS = 0.5 * (2 * pi) / NUMBER_OF_CLUSTERS:...

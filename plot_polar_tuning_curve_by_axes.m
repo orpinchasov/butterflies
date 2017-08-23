@@ -21,7 +21,7 @@ function plot_polar_tuning_curve_by_axes( spike_rate_mat_neuron_by_angle, firing
             axes('position', [current_start_x + size_x - spacing current_start_y size_x size_y]);
 
             polarplot([CENTER_OF_ANGLE_BINS CENTER_OF_ANGLE_BINS(1)], ...
-                      [current_neuron_actual_firing_rate current_neuron_actual_firing_rate(1)]);
+                      [current_neuron_actual_firing_rate current_neuron_actual_firing_rate(1)], 'k');
 
             r_max = max(current_neuron_actual_firing_rate);
             rlim([0 1.2 * r_max]);        
