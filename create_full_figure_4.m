@@ -2,7 +2,7 @@
 
 constants;
 
-TYPE = 'rem';
+TYPE = 'wake';
 FILTERED = true;
 
 
@@ -336,8 +336,8 @@ end
 
 plot(HeadDirectionDiff, HeadDirectionDiffFreqOfShuffle, 'color', [0 0.7 0], 'LineWidth', 1.5);
 
-set(gca, 'xtick', [-pi pi]);
-set(gca, 'XTickLabel', {'-\pi', '\pi'});
+set(gca, 'xtick', [-pi 0 pi]);
+set(gca, 'XTickLabel', {'-\pi', '0', '\pi'});
 if strcmp(TYPE, 'wake')
     set(gca, 'ytick', [0 0.1 0.2 0.3]);
 end
@@ -521,7 +521,7 @@ start_value=0.004;
 end_value=0.023;
 slope_one_color=[1 0.2 0.8];
 
-DataForDimEst=full_reduced_data{3}(1:10:end,2:10);
+DataForDimEst=full_reduced_data{3}(1:10:end,2:4);
 NumOfDataPoints=size(DataForDimEst,1);
 RepAndPermData=permute(repmat(DataForDimEst,[1 1 NumOfDataPoints]),[1 3 2]);
 diff_RepAndPermData=RepAndPermData-permute(RepAndPermData,[2 1 3]);
@@ -534,6 +534,7 @@ diff_RepAndPermData(~~eye(NumOfDataPoints))=NaN;
 
 vy=cumsum(a(start_bin_ind:end));
 vx=b(start_bin_ind:end)-b(start_bin_ind-1);
+%vx=b(start_bin_ind:end);
 relevant_ind=1:(end_bin_ind-start_bin_ind+1);
 hold on;
 for run1=6:30
@@ -550,7 +551,6 @@ ylim([4 20])
 
 xlabel('Log radius');
 ylabel('Log number of neighbors');
-
 
 if strcmp(TYPE, 'wake')
     axes('position', [grid_1_x grid_1_y x_size1 y_size1]);
@@ -618,8 +618,8 @@ if strcmp(TYPE, 'wake')
     [HeadDirectionDiff REMHeadDirectionDiffFreqOfShuffle] = ShuffleInternalVsExternalHeadDirection_Ver1(filtered_angle_per_temporal_bin, smooth_maximum_likelihood_angle_per_sample_index', 1000, 30);
     plot(HeadDirectionDiff, REMHeadDirectionDiffFreqOfShuffle, 'color', [0 0.7 0], 'LineWidth', 1.5);
 
-    set(gca, 'xtick', [-pi pi]);
-    set(gca, 'XTickLabel', {'-\pi', '\pi'});
+    set(gca, 'xtick', [-pi 0 pi]);
+    set(gca, 'XTickLabel', {'-\pi', '0', '\pi'});
     set(gca, 'ytick', [0 0.1 0.2 0.3]);
     %set(gca, 'yTickLabel', {'0', '0.1', '0.2', '0.3'});
     set(gca,'xaxisLocation', 'top');
