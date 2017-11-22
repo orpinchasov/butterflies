@@ -1,7 +1,7 @@
 %%
-cd('C:\Users\orp\Downloads\matlab_examples');
+cd('Y:\personal\orp\backup_20171119\downloads\matlab_examples');
 load_javaplex;
-cd('d:\dev\alon_data\code\custom_scripts');
+cd('Y:\personal\orp\backup_20171119\alon_data\code\custom_scripts');
 
 %%
 % Import project-wide constants

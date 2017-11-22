@@ -1,4 +1,4 @@
-function [ full_neuron_firing_per_bin, angles, position ] = create_spike_count_and_angles_vector_ver1( period, T, G, Ang, Pos )
+function [ full_neuron_firing_per_bin, angles, position ] = create_spike_count_and_angles_vector_ver1( period, T, G, BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN, Pos )
 %CREATE_SPIKE_COUNT_AND_ANGLES_VECTOR Summary of this function goes here
 %   Detailed explanation goes here
 

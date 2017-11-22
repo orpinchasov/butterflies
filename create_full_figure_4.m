@@ -2,7 +2,7 @@
 
 constants;
 
-TYPE = 'wake';
+TYPE = 'rem';
 FILTERED = true;
 
 
@@ -116,7 +116,7 @@ grid_5_y = grid_4_y + y_spacing;
 
 
 % Panel A - reduced neuronal data projected onto a 2D plane
-axes('position', [grid_1_x grid_5_y x_size1 y_size1]);
+axes('position', [grid_2_x grid_5_y x_size1 y_size1]);
 
 % Plot the angle on the reduced data
 head_direction_cmap = hsv(NUMBER_OF_ANGLE_BINS);
@@ -139,7 +139,7 @@ xlim(PANEL_A_XLIM);
 ylim(PANEL_A_YLIM);
 
 % Panel B - plot averaged clustered data 
-axes('position', [grid_2_x grid_5_y x_size1 y_size1]);
+axes('position', [grid_3_x grid_5_y x_size1 y_size1]);
 hold on;
 
 % (in order to compare with the transition graph)
@@ -187,7 +187,7 @@ xlabel('Comp. 1');
 ylabel('Comp. 2');
 
 % Panel C - ordered transition matrix
-axes('position', [grid_3_x * 0.94 grid_5_y x_size1 y_size1]);
+axes('position', [grid_4_x * 0.94 grid_5_y x_size1 y_size1]);
 
 imagesc(imcomplement(transition_mat(chosen_shuffle, chosen_shuffle)));
 set(gca, 'xticklabel', []);
@@ -197,7 +197,7 @@ xlabel('Cluster (t+1)');
 ylabel('Cluster (t)');
 
 % Panel C - colorbar
-axes('position', [grid_3_x * 0.95 + x_size1 + 0.01 grid_5_y x_size2 y_size2], 'YAxisLocation', 'right');
+axes('position', [grid_4_x * 0.95 + x_size1 + 0.01 grid_5_y x_size2 y_size2], 'YAxisLocation', 'right');
 hold on;
 
 cmap_jet=1-colormap('gray');
@@ -218,7 +218,7 @@ y = ylabel('Transition probability');
 set(y, 'Units', 'Normalized', 'Position', [2.5, 0.5, 0]);
 
 % Panel D - plot transition probability graph
-axes('position', [grid_4_x grid_5_y x_size1 y_size1]);
+%axes('position', [grid_4_x grid_5_y x_size1 y_size1]);
 
 % The following mechanism allows rotating the color map to match that of
 % the reduced data.
@@ -245,10 +245,10 @@ DO = max(DO,DO');%(DO + DO')/2;
 angle_bins_cmap = hsv(NUMBER_OF_ANGLE_BINS);
 clusters_indices = NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS:NUMBER_OF_ANGLE_BINS;
 clusters_cmap = angle_bins_cmap(1 + mod(MIRROR * clusters_indices + OFFSET * NUMBER_OF_ANGLE_BINS / NUMBER_OF_CLUSTERS, 40), :);
-scatter(-v(:, 2), v(:, 3), 100, clusters_cmap, 'fill');
+%scatter(-v(:, 2), v(:, 3), 100, clusters_cmap, 'fill');
 
-xlim(PANEL_D_XLIM);
-ylim(PANEL_D_YLIM);
+%xlim(PANEL_D_XLIM);
+%ylim(PANEL_D_YLIM);
 
 % Mouse28-140313 all wake
 %xlim([-0.7 0.7]);
@@ -262,8 +262,8 @@ ylim(PANEL_D_YLIM);
 %xlim([-0.6 0.8]);
 %ylim([-0.8 0.6]);
 
-xlabel('Comp. 1');
-ylabel('Comp. 2');
+%xlabel('Comp. 1');
+%ylabel('Comp. 2');
 
 
 % Panel E - trajectory of actual head movement versus clustered movement
@@ -271,24 +271,30 @@ axes('position', [grid_1_x grid_4_y * 0.98 x_size1 * 2 + x_spacing - x_size1 y_s
 
 hold on;
 
+Fs = (BEHAVIORAL_SAMPLE_RATE / BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN);
+N = length(filtered_angle_per_temporal_bin);
+t = 0:1 / Fs:(N - 1) / Fs;
+
 if strcmp(TYPE, 'wake')
-    plot(filtered_angle_per_temporal_bin, 'k.');
+    %plot(t, filtered_angle_per_temporal_bin, 'k.');
+    plot(find(filter_mask == 1), filtered_angle_per_temporal_bin, 'k.');
 elseif strcmp(TYPE, 'rem')
-    plot(estimated_head_direction_angle_per_sample_index, 'k.');
+    %plot(t, estimated_head_direction_angle_per_sample_index, 'k.');
+    plot(find(filter_mask == 1), estimated_head_direction_angle_per_sample_index, 'k.');
 else
     warning('Unknown type!')
 end
 
-plot(smoothed_estimated_angle_by_clustering, 'r.');
+%plot(t, smoothed_estimated_angle_by_clustering, 'r.');
+plot(find(filter_mask == 1), smoothed_estimated_angle_by_clustering, 'r.');
 
 ylim([0 2 * pi]);
-xlim([5000 9000]);
+xlim([4500 9000]);
 
-% This is stupid
-ticks = get(gca,'XTick');
-set(gca, 'XTickLabel', cellstr(num2str(round(ticks / 10)')));
+set(gca, 'XTick', [400 500 600 700 800 900] * (BEHAVIORAL_SAMPLE_RATE / BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN));
+set(gca, 'XTickLabel', [400 500 600 700 800 900]);
 
-xlabel('Time (samples)');
+xlabel('Time (seconds)');
 ylabel('Angle (rad)');
 
 if strcmp(TYPE, 'wake')
@@ -573,23 +579,29 @@ if strcmp(TYPE, 'wake')
     
     axes('position', [grid_2_x grid_1_y * 0.98 x_size1 * 2 + x_spacing - x_size1 y_size1]);
     hold on;
+    
+    Fs = (BEHAVIORAL_SAMPLE_RATE / BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN);
+    N = length(filtered_angle_per_temporal_bin);
+    t = 0:1 / Fs:(N - 1) / Fs;
+    
     % Plot the actual head direction from wake data
-    plot(filtered_angle_per_temporal_bin, 'k.');
+    %plot(t, filtered_angle_per_temporal_bin, 'k.');
+    plot(find(filter_mask == 1), filtered_angle_per_temporal_bin, 'k.');
 
     % Plot the estimated head direction using the rem tuning curves and the
     % filtered full neuron firing per bin, which matches the filtered angle.
     smooth_maximum_likelihood_angle_per_sample_index = estimate_head_direction(firing_rate_rem, filtered_full_neuron_firing_per_bin);
 
-    plot(smooth_maximum_likelihood_angle_per_sample_index, 'r.');
+    %plot(t, smooth_maximum_likelihood_angle_per_sample_index, 'r.');
+    plot(find(filter_mask == 1), smooth_maximum_likelihood_angle_per_sample_index, 'r.');
 
     ylim([0 2 * pi]);
-    xlim([5000 9000]);
-    
-    % This is stupid
-    ticks = get(gca,'XTick');
-    set(gca, 'XTickLabel', cellstr(num2str(round(ticks / 10)')));
+    xlim([4500 9000]);
 
-    xlabel('Time (samples)');
+    set(gca, 'XTick', [400 500 600 700 800 900] * (BEHAVIORAL_SAMPLE_RATE / BEHAVIORAL_SAMPLES_PER_TEMPORAL_BIN));
+    set(gca, 'XTickLabel', [400 500 600 700 800 900]);
+
+    xlabel('Time (seconds)');
     ylabel('Angle (rad)');
 
     if strcmp(TYPE, 'wake')
